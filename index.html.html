@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AutoAdvisor AI — Dealer Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+  .app { width: 100%; max-width: 780px; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.12); display: flex; flex-direction: column; min-height: 640px; }
+
+  .header { background: #0f1923; padding: 18px 24px; display: flex; align-items: center; gap: 14px; }
+  .logo-mark { width: 36px; height: 36px; background: #e8a020; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; color: #0f1923; font-size: 20px; flex-shrink: 0; }
+  .header-text { flex: 1; }
+  .header-title { color: #fff; font-size: 16px; font-weight: 500; }
+  .header-sub { color: #7a8fa6; font-size: 12px; margin-top: 1px; }
+  .status { display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
+  .status-text { color: #22c55e; font-size: 12px; }
+
+  .powered { background: #1a2535; padding: 8px 24px; font-size: 11px; color: #4a6080; text-align: center; }
+  .powered span { color: #e8a020; }
+
+  .messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; max-height: 460px; }
+
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .msg.user { flex-direction: row-reverse; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+  .avatar.ai { background: #e8a020; color: #0f1923; }
+  .avatar.user { background: #1e3a5f; color: #fff; }
+
+  .bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.55; }
+  .msg.ai .bubble { background: #f4f6f9; color: #1a1a2e; border-bottom-left-radius: 4px; }
+  .msg.user .bubble { background: #1e3a5f; color: #fff; border-bottom-right-radius: 4px; }
+
+  .car-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .car-card { background: #fff; border: 1px solid #e0e4ea; border-radius: 12px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+  .car-card:hover { border-color: #e8a020; box-shadow: 0 2px 12px rgba(232,160,32,0.12); }
+  .car-icon { font-size: 28px; width: 50px; height: 50px; background: #f4f6f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .car-info { flex: 1; min-width: 0; }
+  .car-name { font-size: 13px; font-weight: 500; color: #1a1a2e; }
+  .car-detail { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .car-highlight { font-size: 11px; color: #059669; margin-top: 3px; font-weight: 500; }
+  .car-price { text-align: right; flex-shrink: 0; }
+  .price-main { font-size: 16px; font-weight: 500; color: #e8a020; }
+  .price-mo { font-size: 11px; color: #9ca3af; }
+  .match-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; display: inline-block; margin-top: 4px; }
+  .match-high { background: #d1fae5; color: #065f46; }
+  .match-med { background: #fef3c7; color: #92400e; }
+
+  .cost-table { font-size: 13px; margin-top: 8px; width: 100%; border-collapse: collapse; }
+  .cost-table td { padding: 4px 0; color: #6b7280; }
+  .cost-table td:last-child { text-align: right; color: #1a1a2e; font-weight: 500; }
+  .cost-total td { border-top: 1px solid #e0e4ea; padding-top: 8px; color: #0f1923 !important; font-weight: 600 !important; font-size: 14px !important; }
+
+  .quick-chips { padding: 0 20px 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { background: #f4f6f9; border: 1px solid #e0e4ea; border-radius: 16px; padding: 6px 14px; font-size: 12px; color: #4b5563; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .chip:hover { border-color: #e8a020; color: #c17d10; background: #fffbf0; }
+
+  .input-area { border-top: 1px solid #e8eaf0; padding: 16px 20px; display: flex; gap: 10px; align-items: center; background: #fff; }
+  .chat-input { flex: 1; border: 1px solid #d1d5db; border-radius: 22px; padding: 10px 18px; font-size: 14px; font-family: 'DM Sans', sans-serif; background: #f9fafb; color: #1a1a2e; outline: none; transition: border-color 0.15s; }
+  .chat-input:focus { border-color: #e8a020; background: #fff; }
+  .send-btn { width: 40px; height: 40px; background: #e8a020; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s, transform 0.1s; }
+  .send-btn:hover { background: #cf8e18; }
+  .send-btn:active { transform: scale(0.95); }
+  .send-btn svg { width: 16px; height: 16px; fill: #0f1923; }
+
+  .typing { display: flex; gap: 4px; align-items: center; }
+  .dot { width: 6px; height: 6px; background: #9ca3af; border-radius: 50%; animation: bounce 1s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.15s; }
+  .dot:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+  .api-note { background: #fffbf0; border: 1px solid #f59e0b; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #92400e; margin: 0 20px 12px; }
+  .api-note strong { display: block; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo-mark">A</div>
+    <div class="header-text">
+      <div class="header-title">AutoAdvisor AI</div>
+      <div class="header-sub">Honest inventory intelligence for car buyers</div>
+    </div>
+    <div class="status">
+      <div class="status-dot"></div>
+      <div class="status-text">Live</div>
+    </div>
+  </div>
+
+  <div class="powered">Powered by <span>Claude AI</span> — AutoAdvisor demo v1.0</div>
+
+  <div class="messages" id="messages">
+    <div class="msg ai">
+      <div class="avatar ai">A</div>
+      <div class="bubble">
+        Hi! I'm AutoAdvisor — your honest car buying assistant. Tell me what you're looking for: budget, how you'll use the vehicle, must-haves, family size — anything. I'll match you with the best options and show you the <strong>real total cost</strong>, not just the sticker price.
+      </div>
+    </div>
+  </div>
+
+  <div class="api-note" id="apiNote">
+    <strong>Demo mode:</strong> To enable live AI responses, open this file and add your Claude API key where indicated in the script. Without it, the demo uses built-in smart responses.
+  </div>
+
+  <div class="quick-chips" id="chips">
+    <button class="chip" onclick="sendChip(this)">Truck under $35k for towing</button>
+    <button class="chip" onclick="sendChip(this)">Family SUV with 3rd row</button>
+    <button class="chip" onclick="sendChip(this)">Best deal on a used sedan</button>
+    <button class="chip" onclick="sendChip(this)">Show cost of ownership breakdown</button>
+  </div>
+
+  <div class="input-area">
+    <input class="chat-input" id="userInput" placeholder="Tell me what you're looking for..." onkeydown="if(event.key==='Enter')sendMessage()" />
+    <button class="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURATION — Add your Claude API key here when deploying
+// Get one at: https://console.anthropic.com
+// ============================================================
+const CLAUDE_API_KEY = ""; // e.g. "sk-ant-..."
+
+// ============================================================
+// INVENTORY DATA — Replace with real dealer CSV import later
+// ============================================================
+const INVENTORY = [
+  { id:1, name:"2023 Ford F-150 XLT", type:"truck", price:34900, miles:18200, mpg:20, tow:8200, seats:5, monthly:589, score:98, dealer:"Metro Ford", highlight:"Best tow rating in budget" },
+  { id:2, name:"2022 Ram 1500 Big Horn", type:"truck", price:32500, miles:24100, mpg:21, tow:7640, seats:5, monthly:549, score:91, dealer:"Capitol Ram", highlight:"Lowest price, great reliability" },
+  { id:3, name:"2023 Toyota Tacoma TRD", type:"truck", price:37200, miles:9800, mpg:22, tow:6800, seats:5, monthly:628, score:85, dealer:"ToyotaWorld", highlight:"Best resale value" },
+  { id:4, name:"2023 Kia Telluride EX", type:"suv", price:38900, miles:12400, mpg:24, seats:8, monthly:657, score:97, dealer:"Kia Direct", highlight:"Best family SUV under $40k" },
+  { id:5, name:"2022 Chevrolet Traverse LT", type:"suv", price:34200, miles:21800, mpg:22, seats:8, monthly:578, score:88, dealer:"Chevy City", highlight:"3rd row + under $35k" },
+  { id:6, name:"2021 Honda Pilot EX-L", type:"suv", price:31800, miles:29200, mpg:23, seats:8, monthly:537, score:82, dealer:"Honda Hub", highlight:"Honda reliability, best price" },
+  { id:7, name:"2022 Toyota Camry XSE", type:"sedan", price:26400, miles:19800, mpg:32, seats:5, monthly:446, score:96, dealer:"ToyotaWorld", highlight:"Most fuel efficient + reliable" },
+  { id:8, name:"2021 Honda Accord Sport", type:"sedan", price:24900, miles:28100, mpg:30, seats:5, monthly:420, score:89, dealer:"Honda Hub", highlight:"Best value sedan on the lot" },
+];
+
+function costBreakdown(car) {
+  const insurance = Math.round(1200 + (car.price * 0.02));
+  const fuel = car.mpg ? Math.round((15000 / car.mpg) * 3.8) : 2200;
+  const maint = 900;
+  const total = Math.round((car.monthly * 12) + insurance + fuel + maint);
+  return { insurance, fuel, maint, total };
+}
+
+function carCardHTML(car, matchLevel) {
+  const icons = { truck:"🛻", suv:"🚙", sedan:"🚗" };
+  const badge = matchLevel === "high"
+    ? '<span class="match-badge match-high">Strong match</span>'
+    : '<span class="match-badge match-med">Good match</span>';
+  return `<div class="car-card" onclick="showCost(${car.id})">
+    <div class="car-icon">${icons[car.type]||"🚗"}</div>
+    <div class="car-info">
+      <div class="car-name">${car.name}</div>
+      <div class="car-detail">${car.miles.toLocaleString()} mi &bull; ${car.dealer}</div>
+      <div class="car-highlight">${car.highlight}</div>
+      ${badge}
+    </div>
+    <div class="car-price">
+      <div class="price-main">$${car.price.toLocaleString()}</div>
+      <div class="price-mo">~$${car.monthly}/mo</div>
+    </div>
+  </div>`;
+}
+
+function showCost(id) {
+  const car = INVENTORY.find(c => c.id === id);
+  if (!car) return;
+  const c = costBreakdown(car);
+  const html = `Here's the <strong>true annual cost</strong> for the ${car.name}:<br><br>
+    <table class="cost-table">
+      <tr><td>Loan payments (12 mo)</td><td>$${(car.monthly*12).toLocaleString()}</td></tr>
+      <tr><td>Est. insurance (by zip)</td><td>$${c.insurance.toLocaleString()}</td></tr>
+      <tr><td>Fuel (15,000 mi/yr)</td><td>$${c.fuel.toLocaleString()}</td></tr>
+      <tr><td>Maintenance estimate</td><td>$${c.maint.toLocaleString()}</td></tr>
+      <tr class="cost-total"><td>Total year 1 cost</td><td>$${c.total.toLocaleString()}</td></tr>
+    </table><br>
+    <span style="font-size:12px;color:#6b7280">Most dealers only show the monthly payment. This is your real number — and this dealership believes you deserve to know it.</span>`;
+  addBubble("ai", html);
+}
+
+function getFallbackResponse(input) {
+  const q = input.toLowerCase();
+  let cars = [];
+  let reply = "";
+
+  if (q.includes("tow") || q.includes("truck") || q.includes("35k") || q.includes("$35")) {
+    cars = INVENTORY.filter(c => c.type === "truck").sort((a,b) => (b.tow||0)-(a.tow||0));
+    reply = "Great choice — trucks are big sellers right now. Based on your towing needs and budget, here are your top matches. Tap any card to see the full annual cost breakdown:";
+  } else if (q.includes("family") || q.includes("suv") || q.includes("3rd") || q.includes("third") || q.includes("row")) {
+    cars = INVENTORY.filter(c => c.type === "suv").sort((a,b) => b.score - a.score);
+    reply = "For families I focus on 3rd-row capacity, reliability, and total real cost — not just sticker price. Here are your best options:";
+  } else if (q.includes("sedan") || q.includes("deal") || q.includes("fuel") || q.includes("efficient")) {
+    cars = INVENTORY.filter(c => c.type === "sedan").sort((a,b) => b.score - a.score);
+    reply = "Sedans give the best value per dollar right now. Here are the top picks with the lowest real cost of ownership:";
+  } else if (q.includes("cost") || q.includes("ownership") || q.includes("breakdown")) {
+    addBubble("ai", "Most people focus on the monthly payment — but that's only part of the story. Tap any vehicle card to see the full annual cost: loan payments + insurance + fuel + maintenance. It often changes everything about which car is actually the best deal.");
+    return;
+  } else {
+    cars = INVENTORY.sort((a,b) => b.score - a.score).slice(0,3);
+    reply = "Let me find you the best matches from our current inventory. Tap any card to see the full cost breakdown:";
+  }
+
+  const top = cars.slice(0,3);
+  const carHTML = top.map((c,i) => carCardHTML(c, i===0?"high":"med")).join("");
+  addBubble("ai", reply + `<div class="car-cards">${carHTML}</div>`);
+}
+
+function addBubble(role, html) {
+  const msgs = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.className = `msg ${role}`;
+  const aiAv = '<div class="avatar ai">A</div>';
+  const userAv = '<div class="avatar user">U</div>';
+  div.innerHTML = `${role==="ai"?aiAv:""}<div class="bubble">${html}</div>${role==="user"?userAv:""}`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.className = "msg ai"; div.id = "typing-indicator";
+  div.innerHTML = `<div class="avatar ai">A</div><div class="bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById("typing-indicator");
+  if (t) t.remove();
+}
+
+async function sendMessage() {
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  document.getElementById("chips").style.display = "none";
+  document.getElementById("apiNote").style.display = "none";
+  addBubble("user", text);
+  showTyping();
+  await new Promise(r => setTimeout(r, 800));
+  removeTyping();
+
+  if (CLAUDE_API_KEY) {
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": CLAUDE_API_KEY, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: `You are AutoAdvisor, an honest AI car buying assistant. Current inventory: ${JSON.stringify(INVENTORY)}. 
+Rules: Be warm and honest, never pushy. Always mention total cost of ownership. Point out trade-offs. Keep responses to 2-3 sentences then recommend 1-3 vehicles by name with prices. Format: brief advice then "My top picks: [name] ($XX,XXX)". Never invent inventory not listed.`,
+          messages: [{ role: "user", content: text }]
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.map(b => b.text||"").join("") || "";
+      if (reply) { addBubble("ai", reply); return; }
+    } catch(e) {}
+  }
+
+  getFallbackResponse(text);
+}
+
+function sendChip(btn) {
+  document.getElementById("userInput").value = btn.textContent;
+  sendMessage();
+}
+</script>
+</body>
+</html>
