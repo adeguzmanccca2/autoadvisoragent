@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AutoAdvisor AI — Dealer Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.app{width:100%;max-width:800px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.12);display:flex;flex-direction:column;min-height:680px;}
+.header{background:#0f1923;padding:16px 22px;display:flex;align-items:center;gap:12px;}
+.logo{width:34px;height:34px;background:#e8a020;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;color:#0f1923;flex-shrink:0;}
+.h-text{flex:1;}
+.h-title{color:#fff;font-size:15px;font-weight:500;}
+.h-sub{color:#7a8fa6;font-size:11px;margin-top:1px;}
+.live-badge{display:flex;align-items:center;gap:5px;}
+.live-dot{width:7px;height:7px;background:#22c55e;border-radius:50%;box-shadow:0 0 0 3px rgba(34,197,94,.2);}
+.live-txt{color:#22c55e;font-size:11px;}
+.restart-btn{background:none;border:1px solid #2a4060;border-radius:10px;padding:4px 11px;font-size:11px;color:#7a8fa6;cursor:pointer;font-family:'DM Sans',sans-serif;margin-left:8px;}
+.restart-btn:hover{border-color:#e8a020;color:#e8a020;}
+.progress{background:#1a2535;padding:10px 22px;display:flex;gap:4px;align-items:center;}
+.s-wrap{display:flex;align-items:center;gap:5px;}
+.s-dot{width:22px;height:22px;border-radius:50%;border:1.5px solid #2a4060;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#4a6080;transition:all .3s;flex-shrink:0;}
+.s-dot.done{background:#22c55e;border-color:#22c55e;color:#fff;}
+.s-dot.active{background:#e8a020;border-color:#e8a020;color:#0f1923;}
+.s-label{font-size:10px;color:#4a6080;white-space:nowrap;}
+.s-label.active{color:#e8a020;}
+.s-line{flex:1;height:1px;background:#2a4060;}
+.msgs{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;background:#f9fafb;min-height:400px;max-height:500px;}
+.msg{display:flex;gap:9px;align-items:flex-start;}
+.msg.user{flex-direction:row-reverse;}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;}
+.av.ai{background:#e8a020;color:#0f1923;}
+.av.user{background:#1e3a5f;color:#fff;}
+.bubble{max-width:82%;padding:11px 14px;border-radius:16px;font-size:13.5px;line-height:1.55;}
+.msg.ai .bubble{background:#fff;color:#1a1a2e;border:0.5px solid #e8eaf0;border-bottom-left-radius:4px;}
+.msg.user .bubble{background:#1e3a5f;color:#fff;border-bottom-right-radius:4px;}
+.opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.opt{background:#f4f6f9;border:1px solid #e0e4ea;border-radius:16px;padding:6px 13px;font-size:12px;color:#4b5563;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.opt:hover{border-color:#e8a020;color:#c17d10;background:#fffbf0;}
+.car-cards{display:flex;flex-direction:column;gap:8px;margin-top:10px;width:100%;}
+.car-card{background:#fff;border:1px solid #e0e4ea;border-radius:12px;padding:11px 13px;display:flex;gap:10px;align-items:center;cursor:pointer;transition:border-color .2s,box-shadow .2s;}
+.car-card:hover{border-color:#e8a020;box-shadow:0 2px 12px rgba(232,160,32,.1);}
+.car-icon{font-size:24px;width:44px;height:44px;background:#f4f6f9;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.car-info{flex:1;min-width:0;}
+.car-name{font-size:12.5px;font-weight:500;color:#1a1a2e;}
+.car-detail{font-size:11px;color:#6b7280;margin-top:2px;}
+.car-why{font-size:11px;color:#059669;margin-top:2px;font-weight:500;}
+.car-price{text-align:right;flex-shrink:0;}
+.price-main{font-size:15px;font-weight:500;color:#e8a020;}
+.price-mo{font-size:10px;color:#9ca3af;}
+.match{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:500;display:inline-block;margin-top:3px;}
+.match-hi{background:#d1fae5;color:#065f46;}
+.match-md{background:#fef3c7;color:#92400e;}
+.cost-table{font-size:12px;margin-top:8px;width:100%;border-collapse:collapse;}
+.cost-table td{padding:4px 0;color:#6b7280;}
+.cost-table td:last-child{text-align:right;color:#1a1a2e;font-weight:500;}
+.cost-total td{border-top:1px solid #e0e4ea;padding-top:7px;color:#0f1923!important;font-weight:600!important;font-size:13px!important;}
+.summary{background:#f4f6f9;border-left:3px solid #e8a020;border-radius:0 8px 8px 0;padding:9px 12px;font-size:12px;color:#6b7280;line-height:1.6;margin-top:8px;}
+.lead-form{background:#f4f6f9;border:1px solid #e0e4ea;border-radius:12px;padding:13px;margin-top:10px;}
+.lead-form input{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;color:#1a1a2e;outline:none;margin-bottom:8px;}
+.lead-form input:focus{border-color:#e8a020;}
+.lead-submit{width:100%;background:#e8a020;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:500;color:#0f1923;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;}
+.lead-submit:hover{background:#cf8e18;}
+.typing{display:flex;gap:4px;align-items:center;padding:2px 0;}
+.tdot{width:6px;height:6px;background:#9ca3af;border-radius:50%;animation:bounce 1s infinite;}
+.tdot:nth-child(2){animation-delay:.15s;}
+.tdot:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.input-row{border-top:1px solid #e8eaf0;padding:14px 18px;display:flex;gap:9px;align-items:center;background:#fff;}
+.chat-in{flex:1;border:1px solid #d1d5db;border-radius:20px;padding:9px 16px;font-size:13.5px;font-family:'DM Sans',sans-serif;background:#f9fafb;color:#1a1a2e;outline:none;transition:border-color .15s;}
+.chat-in:focus{border-color:#e8a020;background:#fff;}
+.send-btn{width:38px;height:38px;background:#e8a020;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+.send-btn:hover{background:#cf8e18;}
+.send-btn svg{width:15px;height:15px;fill:#0f1923;}
+.api-note{background:#fffbf0;border-top:1px solid #f59e0b;padding:8px 18px;font-size:11px;color:#92400e;text-align:center;}
+.api-note a{color:#c17d10;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">A</div>
+    <div class="h-text">
+      <div class="h-title">AutoAdvisor AI</div>
+      <div class="h-sub">Your honest car buying assistant</div>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      <div class="live-txt">Live</div>
+      <button class="restart-btn" onclick="restartApp()">↺ Restart</button>
+    </div>
+  </div>
+
+  <div class="progress" id="progress">
+    <div class="s-wrap"><div class="s-dot active" id="sd1">1</div><div class="s-label active" id="sl1">Vehicle</div></div>
+    <div class="s-line"></div>
+    <div class="s-wrap"><div class="s-dot" id="sd2">2</div><div class="s-label" id="sl2">Budget</div></div>
+    <div class="s-line"></div>
+    <div class="s-wrap"><div class="s-dot" id="sd3">3</div><div class="s-label" id="sl3">Needs</div></div>
+    <div class="s-line"></div>
+    <div class="s-wrap"><div class="s-dot" id="sd4">4</div><div class="s-label" id="sl4">Timeline</div></div>
+    <div class="s-line"></div>
+    <div class="s-wrap"><div class="s-dot" id="sd5">5</div><div class="s-label" id="sl5">Results</div></div>
+  </div>
+
+  <div class="msgs" id="msgs"></div>
+
+  <div class="api-note" id="apiNote">
+    Demo mode — add your Claude API key in the script to enable live AI responses. Get one at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+  </div>
+
+  <div class="input-row">
+    <input class="chat-in" id="inp" placeholder="Type your answer or pick an option above..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+    <button class="send-btn" onclick="sendMsg()"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// YOUR CLAUDE API KEY — get one at console.anthropic.com
+// ============================================================
+const CLAUDE_API_KEY = "";
+
+// ============================================================
+// INVENTORY — swap with real dealer CSV data later
+// ============================================================
+const INVENTORY = [
+  {id:1,name:"2023 Ford F-150 XLT",type:"truck",price:34900,miles:18200,mpg:20,tow:8200,seats:5,monthly:589,dealer:"Metro Ford",why:"Best tow rating in your budget"},
+  {id:2,name:"2022 Ram 1500 Big Horn",type:"truck",price:32500,miles:24100,mpg:21,tow:7640,seats:5,monthly:549,dealer:"Capitol Ram",why:"Lowest price, proven reliability"},
+  {id:3,name:"2023 Toyota Tacoma TRD",type:"truck",price:37200,miles:9800,mpg:22,tow:6800,seats:5,monthly:628,dealer:"ToyotaWorld",why:"Best resale value, low miles"},
+  {id:4,name:"2023 Kia Telluride EX",type:"suv",price:38900,miles:12400,mpg:24,seats:8,monthly:657,dealer:"Kia Direct",why:"Top-rated family SUV, 8 seats"},
+  {id:5,name:"2022 Chevrolet Traverse LT",type:"suv",price:34200,miles:21800,mpg:22,seats:8,monthly:578,dealer:"Chevy City",why:"3rd row + stays under $35k"},
+  {id:6,name:"2021 Honda Pilot EX-L",type:"suv",price:31800,miles:29200,mpg:23,seats:8,monthly:537,dealer:"Honda Hub",why:"Honda reliability, best price"},
+  {id:7,name:"2022 Toyota Camry XSE",type:"sedan",price:26400,miles:19800,mpg:32,seats:5,monthly:446,dealer:"ToyotaWorld",why:"32 mpg, lowest running cost"},
+  {id:8,name:"2021 Honda Accord Sport",type:"sedan",price:24900,miles:28100,mpg:30,seats:5,monthly:420,dealer:"Honda Hub",why:"Best value sedan on the lot"},
+];
+
+const QS = [
+  {id:1,q:"What type of vehicle are you looking for?",opts:["Truck","SUV / Crossover","Sedan","Not sure yet"]},
+  {id:2,q:"What's your budget range?",opts:["Under $25k","$25k – $35k","$35k – $45k","$45k+"]},
+  {id:3,q:"What matters most to you?",opts:["Towing capacity","Fuel economy","3rd row seating","Low mileage","Best resale value","Lowest monthly payment"]},
+  {id:4,q:"How soon are you looking to buy?",opts:["This week","Within a month","Just browsing","Need to sell my trade-in first"]},
+];
+
+let profile={type:null,budget:null,needs:[],timeline:null,name:"",phone:"",email:""};
+let step=0, awaitingLead=false, qualified=false;
+
+function $(id){return document.getElementById(id);}
+
+function addMsg(role,html){
+  const m=$("msgs"),d=document.createElement("div");
+  d.className=`msg ${role}`;
+  d.innerHTML=`${role==="ai"?'<div class="av ai">A</div>':""}<div class="bubble">${html}</div>${role==="user"?'<div class="av user">U</div>':""}`;
+  m.appendChild(d); m.scrollTop=m.scrollHeight;
+}
+
+function showTyping(){
+  const m=$("msgs"),d=document.createElement("div");
+  d.className="msg ai"; d.id="typ";
+  d.innerHTML=`<div class="av ai">A</div><div class="bubble"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  m.appendChild(d); m.scrollTop=m.scrollHeight;
+}
+function removeTyping(){const t=$("typ");if(t)t.remove();}
+
+function setProgress(active){
+  for(let i=1;i<=5;i++){
+    const sd=$(`sd${i}`),sl=$(`sl${i}`);
+    if(i<active){sd.className="s-dot done";sd.innerHTML="✓";sl.className="s-label";}
+    else if(i===active){sd.className="s-dot active";sd.innerHTML=i;sl.className="s-label active";}
+    else{sd.className="s-dot";sd.innerHTML=i;sl.className="s-label";}
+  }
+}
+
+function optsHTML(opts){
+  return `<div class="opts">${opts.map(o=>`<button class="opt" onclick="pickOpt('${o.replace(/'/g,"\\'")}')">${o}</button>`).join("")}</div>`;
+}
+
+function askQ(n){setProgress(n);const q=QS[n-1];addMsg("ai",q.q+optsHTML(q.opts));}
+
+async function pickOpt(val){addMsg("user",val);$("inp").value="";await processAnswer(val);}
+
+async function sendMsg(){
+  const inp=$("inp"),val=inp.value.trim();
+  if(!val)return; inp.value="";
+  if(awaitingLead){handleLeadInput(val);return;}
+  addMsg("user",val);
+  if(!qualified){await processAnswer(val);}
+  else{await handleFreeChat(val);}
+}
+
+async function processAnswer(val){
+  showTyping(); await delay(650); removeTyping();
+  if(step===0){step=1;askQ(1);}
+  else if(step===1){
+    const v=val.toLowerCase();
+    if(v.includes("truck"))profile.type="truck";
+    else if(v.includes("suv")||v.includes("cross"))profile.type="suv";
+    else if(v.includes("sedan"))profile.type="sedan";
+    else profile.type="any";
+    step=2;askQ(2);
+  }
+  else if(step===2){profile.budget=val;step=3;askQ(3);}
+  else if(step===3){profile.needs.push(val);step=4;askQ(4);}
+  else if(step===4){profile.timeline=val;step=5;qualified=true;await showResults();}
+}
+
+async function showResults(){
+  setProgress(5); showTyping(); await delay(900); removeTyping();
+  let cars=[...INVENTORY];
+  if(profile.type&&profile.type!=="any")cars=cars.filter(c=>c.type===profile.type);
+  if(profile.budget==="Under $25k")cars=cars.filter(c=>c.price<25000);
+  else if(profile.budget==="$25k – $35k")cars=cars.filter(c=>c.price>=25000&&c.price<=35000);
+  else if(profile.budget==="$35k – $45k")cars=cars.filter(c=>c.price>=35000&&c.price<=45000);
+  else if(profile.budget==="$45k+")cars=cars.filter(c=>c.price>=45000);
+  const need=profile.needs[0]||"";
+  if(need.includes("Tow"))cars.sort((a,b)=>(b.tow||0)-(a.tow||0));
+  else if(need.includes("Fuel"))cars.sort((a,b)=>b.mpg-a.mpg);
+  else if(need.includes("mileage"))cars.sort((a,b)=>a.miles-b.miles);
+  else if(need.includes("monthly"))cars.sort((a,b)=>a.monthly-b.monthly);
+  if(!cars.length)cars=INVENTORY.filter(c=>profile.type==="any"||c.type===profile.type).slice(0,3);
+  if(!cars.length)cars=INVENTORY.slice(0,3);
+  cars=cars.slice(0,3);
+  const icons={truck:"🛻",suv:"🚙",sedan:"🚗"};
+  const carHTML=cars.map((c,i)=>`
+    <div class="car-card" onclick="showCost(${c.id})">
+      <div class="car-icon">${icons[c.type]||"🚗"}</div>
+      <div class="car-info">
+        <div class="car-name">${c.name}</div>
+        <div class="car-detail">${c.miles.toLocaleString()} mi · ${c.dealer}</div>
+        <div class="car-why">${c.why}</div>
+        <span class="match ${i===0?"match-hi":"match-md"}">${i===0?"Best match":"Good match"}</span>
+      </div>
+      <div class="car-price">
+        <div class="price-main">$${c.price.toLocaleString()}</div>
+        <div class="price-mo">~$${c.monthly}/mo</div>
+      </div>
+    </div>`).join("");
+  addMsg("ai",`Based on your answers, here are your top ${cars.length} matches — tap any card to see the full cost of ownership breakdown:
+    <div class="summary">Vehicle: ${profile.type==="any"?"Any":profile.type} &bull; Budget: ${profile.budget} &bull; Priority: ${need||"Best value"} &bull; Timeline: ${profile.timeline}</div>
+    <div class="car-cards">${carHTML}</div>`);
+  await delay(700);
+  addMsg("ai",`Want to hold your top pick or schedule a test drive? Leave your info and a salesperson will reach out — no pressure at all.
+    <div class="lead-form">
+      <input id="lname" placeholder="Your name"/>
+      <input id="lphone" placeholder="Phone number"/>
+      <input id="lemail" placeholder="Email address"/>
+      <button class="lead-submit" onclick="submitLead()">Send my matches to a salesperson →</button>
+    </div>`);
+  awaitingLead=true;
+}
+
+function showCost(id){
+  const car=INVENTORY.find(c=>c.id===id);if(!car)return;
+  const ins=Math.round(1200+(car.price*.02));
+  const fuel=Math.round((15000/car.mpg)*3.8);
+  const maint=900;
+  const total=Math.round((car.monthly*12)+ins+fuel+maint);
+  addMsg("ai",`True annual cost for the <strong>${car.name}</strong>:<br><br>
+    <table class="cost-table">
+      <tr><td>Loan payments (12 mo)</td><td>$${(car.monthly*12).toLocaleString()}</td></tr>
+      <tr><td>Est. insurance</td><td>$${ins.toLocaleString()}</td></tr>
+      <tr><td>Fuel (15,000 mi/yr)</td><td>$${fuel.toLocaleString()}</td></tr>
+      <tr><td>Maintenance est.</td><td>$${maint.toLocaleString()}</td></tr>
+      <tr class="cost-total"><td>Total year 1 cost</td><td>$${total.toLocaleString()}</td></tr>
+    </table><br>
+    <span style="font-size:11px;color:#9ca3af">Most dealers only show the monthly payment. This is your real number.</span>`);
+}
+
+function submitLead(){
+  const name=$("lname")?.value.trim();
+  const phone=$("lphone")?.value.trim();
+  const email=$("lemail")?.value.trim();
+  if(!name){alert("Please enter your name");return;}
+  profile.name=name;profile.phone=phone;profile.email=email;
+  awaitingLead=false;
+  addMsg("user",`${name} · ${phone||"—"} · ${email||"—"}`);
+  // TODO: POST lead to your backend database here
+  console.log("LEAD CAPTURED:",JSON.stringify(profile,null,2));
+  setTimeout(()=>addMsg("ai",`Thanks ${name}! A salesperson will be in touch within the hour. Feel free to ask me anything in the meantime — financing, trade-in value, feature comparisons, anything at all.`),600);
+}
+
+function handleLeadInput(val){
+  addMsg("user",val);awaitingLead=false;
+  setTimeout(()=>addMsg("ai","Got it! Ask me anything else about the vehicles or financing."),500);
+}
+
+async function handleFreeChat(val){
+  showTyping();await delay(700);removeTyping();
+  if(CLAUDE_API_KEY){
+    try{
+      const res=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":CLAUDE_API_KEY,"anthropic-version":"2023-06-01"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",max_tokens:1000,
+          system:`You are AutoAdvisor, an honest car buying assistant. Inventory: ${JSON.stringify(INVENTORY)}. Customer profile: ${JSON.stringify(profile)}. Be warm, honest, concise. Never pushy. Focus on total cost of ownership. Never invent inventory not in the list.`,
+          messages:[{role:"user",content:val}]
+        })
+      });
+      const data=await res.json();
+      const reply=data.content?.map(b=>b.text||"").join("")||"";
+      if(reply){addMsg("ai",reply);return;}
+    }catch(e){}
+  }
+  const q=val.toLowerCase();
+  if(q.includes("financ")||q.includes("loan"))
+    addMsg("ai","Most lenders offer 60–72 month terms right now. With good credit expect 5–7% APR. Want me to run a payment estimate on any vehicle above?");
+  else if(q.includes("trade"))
+    addMsg("ai","For trade-in value check KBB.com and Edmunds first — knowing your car's worth before negotiating saves you thousands. Dealers typically offer 10–15% below retail value.");
+  else if(q.includes("insur"))
+    addMsg("ai","Insurance varies by zip code and driving record. Trucks and SUVs typically run $1,400–$1,900/yr for full coverage. Sedans are usually $1,200–$1,500. Tap any vehicle card to see the full cost breakdown including insurance estimates.");
+  else
+    addMsg("ai","Happy to help — feel free to ask me anything about these vehicles, financing options, trade-ins, or scheduling a test drive.");
+}
+
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+function restartApp(){
+  profile={type:null,budget:null,needs:[],timeline:null,name:"",phone:"",email:""};
+  step=0;awaitingLead=false;qualified=false;
+  $("msgs").innerHTML="";
+  setProgress(1);
+  init();
+}
+
+function init(){
+  $("apiNote").style.display=CLAUDE_API_KEY?"none":"block";
+  addMsg("ai","Hi! I'm AutoAdvisor — your honest car buying assistant. I'll ask you 4 quick questions so I can match you with the perfect vehicle from our inventory. Ready?"+
+    `<div class="opts"><button class="opt" onclick="processAnswer('start')">Let's find my car →</button></div>`);
+}
+
+init();
+</script>
+</body>
+</html>
