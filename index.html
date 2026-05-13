@@ -8,9 +8,12 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+body.dash-mode{background:#0a1118;align-items:stretch;justify-content:flex-start;padding:0;}
 .app{width:100%;max-width:800px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.12);display:flex;flex-direction:column;min-height:680px;}
+body.dash-mode .app{display:none;}
 .header{background:#0f1923;padding:16px 22px;display:flex;align-items:center;gap:12px;}
-.logo{width:34px;height:34px;background:#e8a020;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;color:#0f1923;flex-shrink:0;}
+.logo{width:34px;height:34px;background:#e8a020;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;color:#0f1923;flex-shrink:0;overflow:hidden;}
+.logo img{width:100%;height:100%;object-fit:cover;}
 .h-text{flex:1;}
 .h-title{color:#fff;font-size:15px;font-weight:500;}
 .h-sub{color:#7a8fa6;font-size:11px;margin-top:1px;}
@@ -76,14 +79,339 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;min-height:100vh;displa
 .send-btn svg{width:15px;height:15px;fill:#0f1923;}
 .api-note{background:#fffbf0;border-top:1px solid #f59e0b;padding:8px 18px;font-size:11px;color:#92400e;text-align:center;}
 .api-note a{color:#c17d10;}
+
+/* Mode toggle */
+.mode-toggle{position:fixed;top:18px;right:18px;background:#0f1923;color:#e8a020;border:1px solid #e8a020;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;z-index:1000;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s;}
+.mode-toggle:hover{background:#e8a020;color:#0f1923;}
+
+/* Dashboard layout */
+#dashView{display:none;width:100%;min-height:100vh;background:#0a1118;color:#e4e7ee;}
+body.dash-mode #dashView{display:flex;}
+.sidebar{width:220px;background:#0f1923;border-right:1px solid #1a2535;display:flex;flex-direction:column;padding:18px 0;flex-shrink:0;transition:width .2s;}
+.sb-logo{padding:0 18px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1a2535;margin-bottom:14px;}
+.sb-logo-icon{width:34px;height:34px;background:#e8a020;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:500;color:#0f1923;flex-shrink:0;overflow:hidden;}
+.sb-logo-icon img{width:100%;height:100%;object-fit:cover;}
+.sb-logo-text{font-size:13px;font-weight:500;color:#fff;line-height:1.2;}
+.sb-logo-sub{font-size:10px;color:#7a8fa6;margin-top:1px;}
+.sb-nav{display:flex;flex-direction:column;gap:2px;padding:0 10px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#7a8fa6;font-size:13px;border:none;background:none;font-family:'DM Sans',sans-serif;text-align:left;width:100%;transition:all .15s;}
+.sb-item:hover{background:#1a2535;color:#e4e7ee;}
+.sb-item.active{background:rgba(232,160,32,.12);color:#e8a020;font-weight:500;}
+.sb-icon{font-size:15px;flex-shrink:0;width:18px;text-align:center;}
+
+.main-content{flex:1;padding:24px 28px 40px;overflow-y:auto;max-height:100vh;}
+.page-title{font-size:22px;font-weight:500;color:#fff;margin-bottom:4px;}
+.page-sub{font-size:13px;color:#7a8fa6;margin-bottom:22px;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* KPI cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px;}
+.kpi{background:#0f1923;border:1px solid #1a2535;border-radius:12px;padding:16px;}
+.kpi-label{font-size:11px;color:#7a8fa6;text-transform:uppercase;letter-spacing:.5px;}
+.kpi-val{font-size:26px;color:#e8a020;font-weight:500;margin-top:6px;line-height:1;}
+.kpi-sub{font-size:11px;color:#7a8fa6;margin-top:4px;}
+
+/* Cards & tables */
+.dash-card{background:#0f1923;border:1px solid #1a2535;border-radius:12px;padding:18px;margin-bottom:18px;}
+.dash-card-title{font-size:14px;color:#fff;font-weight:500;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.dash-table-wrap{overflow-x:auto;}
+.dash-table{width:100%;border-collapse:collapse;font-size:13px;}
+.dash-table th{text-align:left;padding:10px 8px;font-size:10px;color:#7a8fa6;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #1a2535;font-weight:500;white-space:nowrap;}
+.dash-table td{padding:11px 8px;border-bottom:1px solid #1a2535;color:#e4e7ee;}
+.dash-table tr:last-child td{border-bottom:none;}
+.dash-table tbody tr{cursor:default;transition:background .12s;}
+.dash-table tbody tr.clickable{cursor:pointer;}
+.dash-table tbody tr:hover td{background:rgba(232,160,32,.04);}
+
+/* Status badges */
+.badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;display:inline-block;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;}
+.badge-new{background:#dbeafe;color:#1e40af;}
+.badge-contacted{background:#fef3c7;color:#92400e;}
+.badge-closed{background:#d1fae5;color:#065f46;}
+.rec-badge{background:rgba(232,160,32,.15);color:#e8a020;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;}
+
+/* Buttons */
+.btn{background:#e8a020;color:#0f1923;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;}
+.btn:hover{background:#cf8e18;}
+.btn-ghost{background:transparent;color:#e4e7ee;border:1px solid #2a4060;}
+.btn-ghost:hover{background:#1a2535;color:#e8a020;border-color:#e8a020;}
+.btn-danger{background:#dc2626;color:#fff;}
+.btn-danger:hover{background:#b91c1c;}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* Drop zone */
+.dropzone{border:2px dashed #2a4060;border-radius:12px;padding:30px 20px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(232,160,32,.02);margin-bottom:14px;}
+.dropzone:hover,.dropzone.dragover{border-color:#e8a020;background:rgba(232,160,32,.08);}
+.dropzone-icon{font-size:32px;margin-bottom:8px;}
+.dropzone-text{font-size:13px;color:#e4e7ee;margin-bottom:4px;}
+.dropzone-sub{font-size:11px;color:#7a8fa6;line-height:1.5;}
+.dropzone input{display:none;}
+
+/* Settings form */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;color:#7a8fa6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.field input{width:100%;background:#0a1118;border:1px solid #2a4060;border-radius:8px;padding:9px 12px;font-size:13px;color:#e4e7ee;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;}
+.field input:focus{border-color:#e8a020;}
+.field input[type=color]{height:42px;padding:4px;cursor:pointer;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.field-hint{font-size:11px;color:#7a8fa6;margin-top:4px;}
+
+/* Bar chart */
+.chart{display:flex;align-items:flex-end;gap:8px;height:180px;padding:8px 0 0;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;}
+.bar-track{flex:1;width:100%;display:flex;align-items:flex-end;}
+.bar{width:100%;background:linear-gradient(180deg,#e8a020,#cf8e18);border-radius:6px 6px 0 0;min-height:2px;transition:height .3s;}
+.bar-val{font-size:11px;color:#e8a020;font-weight:500;}
+.bar-label{font-size:10px;color:#7a8fa6;text-transform:uppercase;letter-spacing:.5px;}
+
+/* Top questions */
+.q-list{display:flex;flex-direction:column;gap:8px;}
+.q-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0a1118;border-radius:8px;font-size:13px;border:1px solid #1a2535;}
+.q-text{color:#e4e7ee;flex:1;padding-right:10px;}
+.q-count{color:#e8a020;font-weight:500;font-size:12px;background:rgba(232,160,32,.1);padding:3px 10px;border-radius:10px;white-space:nowrap;}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1500;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal{background:#0f1923;border:1px solid #1a2535;border-radius:14px;padding:20px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid #1a2535;padding-bottom:10px;}
+.modal-title{font-size:15px;color:#fff;font-weight:500;}
+.modal-sub{font-size:12px;color:#7a8fa6;margin-top:2px;}
+.modal-close{background:none;border:none;color:#7a8fa6;font-size:22px;cursor:pointer;line-height:1;padding:0 6px;}
+.modal-close:hover{color:#e8a020;}
+.transcript-line{padding:9px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;line-height:1.5;}
+.transcript-line.user{background:#1e3a5f;color:#fff;}
+.transcript-line.ai{background:#1a2535;color:#e4e7ee;}
+.transcript-role{font-size:9px;text-transform:uppercase;letter-spacing:.6px;opacity:.7;margin-bottom:3px;}
+
+/* Branding panel */
+.brand-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;align-items:start;}
+.brand-inputs{min-width:0;}
+.brand-preview-wrap{position:sticky;top:0;}
+.preview-label{font-size:10px;color:#7a8fa6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.preview-label::before{content:"";width:6px;height:6px;background:#22c55e;border-radius:50%;box-shadow:0 0 0 3px rgba(34,197,94,.2);}
+.brand-preview{--bc:#e8a020;--bc-dark:#cf8e18;background:#fff;border:1px solid #1a2535;border-radius:14px;overflow:hidden;font-size:12px;box-shadow:0 4px 20px rgba(0,0,0,.25);}
+.bp-header{background:#0f1923;padding:11px 13px;display:flex;align-items:center;gap:9px;}
+.bp-logo{width:28px;height:28px;background:var(--bc);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#0f1923;flex-shrink:0;overflow:hidden;}
+.bp-logo img{width:100%;height:100%;object-fit:cover;}
+.bp-htext{flex:1;min-width:0;}
+.bp-name{color:#fff;font-size:12px;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bp-sub{color:#7a8fa6;font-size:9px;margin-top:1px;}
+.bp-live{display:flex;align-items:center;gap:4px;}
+.bp-live-dot{width:5px;height:5px;background:#22c55e;border-radius:50%;}
+.bp-live-txt{color:#22c55e;font-size:9px;}
+.bp-body{padding:12px;display:flex;flex-direction:column;gap:8px;background:#f9fafb;min-height:160px;}
+.bp-msg{display:flex;gap:6px;align-items:flex-start;}
+.bp-av{width:20px;height:20px;border-radius:50%;background:var(--bc);color:#0f1923;font-size:9px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bp-bubble{background:#fff;border:1px solid #e8eaf0;padding:7px 10px;border-radius:11px;border-bottom-left-radius:3px;font-size:10.5px;color:#1a1a2e;line-height:1.4;max-width:85%;}
+.bp-chips{display:flex;gap:5px;flex-wrap:wrap;margin-left:26px;}
+.bp-chip{background:#fff;border:1px solid var(--bc);color:var(--bc);border-radius:11px;padding:3px 9px;font-size:9.5px;font-weight:500;}
+.bp-card{background:#fff;border:1px solid #e0e4ea;border-left:3px solid var(--bc);border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-left:26px;}
+.bp-card-info{min-width:0;}
+.bp-card-name{font-size:10px;font-weight:500;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bp-card-detail{font-size:9px;color:#6b7280;margin-top:1px;}
+.bp-card-price{color:var(--bc);font-weight:500;font-size:11px;white-space:nowrap;}
+.bp-form{background:#f4f6f9;border-radius:8px;padding:8px 10px;margin-left:26px;border-left:3px solid var(--bc);}
+.bp-form-h{font-size:9.5px;color:#0f1923;font-weight:500;margin-bottom:4px;}
+.bp-form-h span{color:var(--bc);}
+.bp-form-fake{height:5px;background:#e0e4ea;border-radius:3px;margin-bottom:3px;}
+.bp-form-btn{width:100%;background:var(--bc);color:#0f1923;border:none;border-radius:5px;padding:5px;font-size:9.5px;font-weight:500;margin-top:4px;}
+.bp-input{display:flex;gap:6px;padding:8px 10px;border-top:1px solid #e8eaf0;background:#fff;align-items:center;}
+.bp-input-fake{flex:1;height:22px;border:1px solid #e0e4ea;border-radius:11px;background:#f9fafb;display:flex;align-items:center;padding:0 9px;font-size:9.5px;color:#9ca3af;}
+.bp-send{width:24px;height:24px;background:var(--bc);border:none;border-radius:50%;color:#0f1923;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.lead-form-header{font-size:11.5px;color:#0f1923;font-weight:500;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid #e0e4ea;}
+.lead-form-header span{color:#e8a020;font-weight:600;}
+.brand-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+@media (max-width:900px){
+  .brand-grid{grid-template-columns:1fr;}
+  .brand-preview-wrap{position:static;}
+}
+
+/* WhatsApp / SMS Demo */
+.wa-demo-wrap{max-width:1000px;}
+.wa-banner{background:linear-gradient(90deg,rgba(37,211,102,.14),rgba(37,211,102,.02));border:1px solid rgba(37,211,102,.4);color:#9be9b3;padding:11px 16px;border-radius:10px;font-size:13px;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.wa-banner-dot{width:8px;height:8px;background:#25D366;border-radius:50%;box-shadow:0 0 0 4px rgba(37,211,102,.22);flex-shrink:0;}
+.wa-banner strong{color:#fff;font-weight:500;}
+.wa-banner.sms{background:linear-gradient(90deg,rgba(0,122,255,.14),rgba(0,122,255,.02));border-color:rgba(0,122,255,.4);color:#9bc4ff;}
+.wa-banner.sms .wa-banner-dot{background:#007AFF;box-shadow:0 0 0 4px rgba(0,122,255,.22);}
+
+.wa-toggle-row{display:inline-flex;background:#0a1118;border:1px solid #1a2535;padding:4px;border-radius:10px;margin-bottom:18px;}
+.wa-toggle{background:none;border:none;padding:8px 18px;border-radius:7px;color:#7a8fa6;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all .15s;}
+.wa-toggle:hover{color:#e4e7ee;}
+.wa-toggle-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+.wa-toggle.active[data-mode="whatsapp"]{background:#25D366;color:#fff;}
+.wa-toggle.active[data-mode="sms"]{background:#007AFF;color:#fff;}
+
+.wa-layout{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start;}
+.wa-pane{display:flex;flex-direction:column;align-items:center;}
+
+.phone-frame{background:#1a2535;border-radius:38px;padding:12px;border:2px solid #243450;box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 0 0 2px #0a1118;width:380px;max-width:100%;position:relative;}
+.phone-frame::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);width:90px;height:22px;background:#0a1118;border-radius:0 0 14px 14px;z-index:5;}
+.phone-screen{background:#000;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;height:640px;position:relative;}
+.phone-status-bar{height:30px;background:transparent;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:8px 24px 0;font-size:12px;font-weight:600;flex-shrink:0;z-index:2;position:relative;}
+.phone-status-bar.dark{color:#000;}
+.pb-time{}
+.pb-icons{display:flex;gap:5px;align-items:center;font-size:11px;}
+
+.sim{display:flex;flex-direction:column;flex:1;min-height:0;}
+
+/* WhatsApp skin */
+.sim.wa{background:#ECE5DD;}
+.sim.wa .sim-header{background:#075E54;color:#fff;padding:8px 12px;display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.sim.wa .sim-back{color:#fff;font-size:18px;cursor:pointer;}
+.sim.wa .sim-avatar{width:34px;height:34px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:14px;flex-shrink:0;overflow:hidden;}
+.sim.wa .sim-avatar img{width:100%;height:100%;object-fit:cover;}
+.sim.wa .sim-meta{flex:1;min-width:0;}
+.sim.wa .sim-name{font-size:14px;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sim.wa .sim-status{font-size:11px;opacity:.85;display:flex;align-items:center;gap:5px;margin-top:1px;}
+.sim.wa .sim-status-dot{width:6px;height:6px;background:#25D366;border-radius:50%;}
+.sim.wa .sim-icons{display:flex;gap:14px;color:#fff;font-size:14px;}
+
+.sim.wa .sim-body{flex:1;overflow-y:auto;padding:14px 9px;background:#ECE5DD;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><circle cx='12' cy='12' r='1' fill='%23d4cdc1'/><circle cx='36' cy='36' r='1' fill='%23d4cdc1'/><circle cx='24' cy='24' r='0.8' fill='%23d4cdc1'/></svg>");display:flex;flex-direction:column;gap:3px;}
+.sim.wa .wa-msg{max-width:80%;padding:6px 9px 6px 10px;border-radius:8px;font-size:13.5px;line-height:1.38;position:relative;word-wrap:break-word;box-shadow:0 1px 0.5px rgba(0,0,0,.13);color:#111;white-space:pre-wrap;}
+.sim.wa .wa-msg.ai{background:#fff;align-self:flex-start;border-top-left-radius:0;}
+.sim.wa .wa-msg.user{background:#DCF8C6;align-self:flex-end;border-top-right-radius:0;}
+.sim.wa .wa-msg-time{font-size:10px;color:#667781;float:right;margin-left:8px;margin-top:5px;display:inline-flex;align-items:center;gap:3px;}
+.sim.wa .wa-msg-check{color:#34B7F1;font-size:11px;font-weight:600;letter-spacing:-2px;}
+
+.sim.wa .sim-input{background:#F0F0F0;padding:8px;display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.sim.wa .sim-input-box{flex:1;background:#fff;border-radius:22px;padding:8px 14px;display:flex;align-items:center;min-width:0;}
+.sim.wa .sim-send{width:38px;height:38px;background:#25D366;color:#fff;border-radius:50%;border:none;cursor:pointer;flex-shrink:0;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.sim.wa .sim-send:hover{background:#1da856;}
+
+/* SMS / iMessage skin */
+.sim.sms{background:#fff;}
+.sim.sms .sim-header{background:rgba(247,247,247,.94);backdrop-filter:blur(10px);color:#000;padding:6px 12px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:0.5px solid #d1d1d6;flex-shrink:0;text-align:center;position:relative;}
+.sim.sms .sim-back{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#007AFF;font-size:24px;line-height:1;}
+.sim.sms .sim-avatar{width:46px;height:46px;border-radius:50%;background:#007AFF;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:18px;overflow:hidden;}
+.sim.sms .sim-avatar img{width:100%;height:100%;object-fit:cover;}
+.sim.sms .sim-name{font-size:11.5px;color:#000;font-weight:400;line-height:1.2;}
+.sim.sms .sim-name .chev{color:#8e8e93;font-size:11px;}
+.sim.sms .sim-status{font-size:10px;color:#8e8e93;}
+
+.sim.sms .sim-body{flex:1;overflow-y:auto;padding:14px 12px;background:#fff;display:flex;flex-direction:column;gap:2px;}
+.sim.sms .sms-msg{max-width:78%;padding:8px 13px;border-radius:18px;font-size:14px;line-height:1.35;word-wrap:break-word;white-space:pre-wrap;}
+.sim.sms .sms-msg.ai{background:#E9E9EB;color:#000;align-self:flex-start;border-bottom-left-radius:5px;margin-top:6px;}
+.sim.sms .sms-msg.user{background:#007AFF;color:#fff;align-self:flex-end;border-bottom-right-radius:5px;margin-top:6px;}
+.sim.sms .sms-day{align-self:center;font-size:10.5px;color:#8e8e93;margin:6px 0 4px;font-weight:500;}
+.sim.sms .sms-day strong{color:#000;font-weight:600;}
+.sim.sms .sms-delivered{font-size:10px;color:#8e8e93;align-self:flex-end;margin-top:2px;margin-right:6px;}
+
+.sim.sms .sim-input{background:#fff;padding:8px;display:flex;align-items:flex-end;gap:7px;border-top:0.5px solid #d1d1d6;flex-shrink:0;}
+.sim.sms .sim-input-box{flex:1;background:#fff;border:1px solid #d1d1d6;border-radius:18px;padding:7px 14px;display:flex;align-items:center;min-width:0;}
+.sim.sms .sim-send{width:30px;height:30px;background:#007AFF;color:#fff;border-radius:50%;border:none;cursor:pointer;flex-shrink:0;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.sim.sms .sim-send:hover{background:#0062cc;}
+.sim.sms .sim-send:disabled{background:#d1d1d6;cursor:not-allowed;}
+
+/* Shared input */
+.sim .sim-input-box input{flex:1;border:none;outline:none;background:transparent;font-size:14px;font-family:'DM Sans',sans-serif;color:#111;width:100%;min-width:0;}
+.sim .sim-input-box input::placeholder{color:#9ca3af;}
+
+/* Typing indicator (sim) */
+.sim .typing-ind{display:flex;gap:4px;padding:2px 0;align-items:center;}
+.sim .typing-ind .tdot{width:6px;height:6px;background:#9ca3af;border-radius:50%;animation:bounce 1s infinite;}
+.sim .typing-ind .tdot:nth-child(2){animation-delay:.15s;}
+.sim .typing-ind .tdot:nth-child(3){animation-delay:.3s;}
+.sim.wa .wa-msg.ai.typing-bubble{padding:9px 12px;}
+.sim.sms .sms-msg.ai.typing-bubble{padding:10px 14px;}
+
+/* Sidebar info & how-it-works */
+.wa-side{min-width:0;}
+.wa-info-card{background:#0f1923;border:1px solid #1a2535;border-radius:12px;padding:18px;margin-bottom:14px;}
+.wa-info-h{font-size:13px;color:#fff;font-weight:500;margin-bottom:9px;display:flex;align-items:center;gap:9px;}
+.wa-info-icon{width:26px;height:26px;background:#25D366;color:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.wa-info-icon.sms{background:#007AFF;}
+.wa-info-text{font-size:12.5px;color:#7a8fa6;line-height:1.6;}
+.wa-info-text strong{color:#e4e7ee;font-weight:500;}
+.wa-info-list{margin-top:11px;display:flex;flex-direction:column;gap:7px;}
+.wa-info-item{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#7a8fa6;line-height:1.5;}
+.wa-info-item::before{content:"✓";color:#25D366;font-weight:600;flex-shrink:0;margin-top:0.5px;}
+.wa-info-card.sms .wa-info-item::before{color:#007AFF;}
+
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:14px;}
+.step-card{background:#0f1923;border:1px solid #1a2535;border-radius:12px;padding:16px 14px;position:relative;}
+.step-num{width:26px;height:26px;background:rgba(37,211,102,.16);color:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:12px;margin-bottom:10px;}
+.step-card.sms-step .step-num{background:rgba(0,122,255,.16);color:#007AFF;}
+.step-icon{font-size:22px;margin-bottom:8px;display:block;line-height:1;}
+.step-title{font-size:13.5px;color:#fff;font-weight:500;margin-bottom:5px;}
+.step-text{font-size:12px;color:#7a8fa6;line-height:1.5;}
+
+.wa-fullscreen-btn{position:absolute;top:-2px;right:-2px;background:rgba(15,25,35,.92);color:#e8a020;border:1px solid #e8a020;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;z-index:20;}
+.wa-fullscreen-btn:hover{background:#e8a020;color:#0f1923;}
+.wa-demo-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;justify-content:center;}
+
+/* Fullscreen / pitch mode */
+body.wa-fullscreen .sidebar,
+body.wa-fullscreen .mode-toggle,
+body.wa-fullscreen #page-whatsapp .page-title,
+body.wa-fullscreen #page-whatsapp .page-sub,
+body.wa-fullscreen #page-whatsapp .wa-side{display:none;}
+body.wa-fullscreen .main-content{padding:30px 20px;max-height:100vh;display:flex;align-items:center;justify-content:center;}
+body.wa-fullscreen #page-whatsapp .wa-demo-wrap{max-width:480px;margin:0 auto;}
+body.wa-fullscreen #page-whatsapp .wa-layout{grid-template-columns:1fr;}
+body.wa-fullscreen #page-whatsapp .wa-pane{align-items:center;}
+
+@media (max-width:980px){
+  .wa-layout{grid-template-columns:1fr;}
+  .phone-frame{margin:0 auto;}
+}
+@media (max-width:520px){
+  .phone-frame{width:100%;max-width:340px;padding:9px;border-radius:32px;}
+  .phone-frame::before{width:74px;height:18px;top:11px;}
+  .phone-screen{height:560px;border-radius:22px;}
+  .wa-toggle{padding:7px 14px;font-size:12px;}
+}
+
+/* Toast */
+.toast-container{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:2000;pointer-events:none;}
+.toast{background:#0f1923;border:1px solid #e8a020;border-radius:10px;padding:11px 16px;color:#e4e7ee;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:slideIn .25s ease-out;pointer-events:auto;max-width:320px;}
+.toast.error{border-color:#dc2626;}
+.toast.success::before{content:"✓ ";color:#22c55e;font-weight:600;}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.fade-out{animation:slideOut .25s ease-in forwards;}
+@keyframes slideOut{to{transform:translateX(110%);opacity:0}}
+
+.empty{padding:30px 20px;text-align:center;color:#7a8fa6;font-size:13px;}
+.empty-icon{font-size:32px;margin-bottom:8px;opacity:.5;}
+
+.search-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.search-input{flex:1;min-width:180px;background:#0a1118;border:1px solid #2a4060;border-radius:8px;padding:8px 12px;font-size:13px;color:#e4e7ee;font-family:'DM Sans',sans-serif;outline:none;}
+.search-input:focus{border-color:#e8a020;}
+.filter-select{background:#0a1118;border:1px solid #2a4060;border-radius:8px;padding:8px 12px;font-size:13px;color:#e4e7ee;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
+.filter-select:focus{border-color:#e8a020;}
+
+/* Mobile */
+@media (max-width:760px){
+  body{padding:10px;}
+  .sidebar{width:60px;}
+  .sb-logo{justify-content:center;padding:0 0 14px;gap:0;}
+  .sb-logo-text,.sb-logo-sub{display:none;}
+  .sb-item{justify-content:center;padding:11px 0;gap:0;}
+  .sb-label{display:none;}
+  .main-content{padding:18px 14px 30px;}
+  .field-row{grid-template-columns:1fr;}
+  .dash-table{font-size:12px;}
+  .dash-table th,.dash-table td{padding:8px 5px;}
+  .page-title{font-size:18px;}
+  .mode-toggle{top:10px;right:10px;padding:7px 9px;font-size:11px;}
+  body:not(.dash-mode) #modeText{display:none;}
+  body.dash-mode .mode-toggle{top:14px;right:14px;padding:7px 12px;}
+}
 </style>
 </head>
 <body>
-<div class="app">
+
+<button class="mode-toggle" id="modeToggle" onclick="toggleMode()">
+  <span id="modeIcon">⊞</span><span id="modeText">Dealer Dashboard</span>
+</button>
+
+<div class="app" id="chatView">
   <div class="header">
-    <div class="logo">A</div>
+    <div class="logo" id="chatLogo">A</div>
     <div class="h-text">
-      <div class="h-title">AutoAdvisor AI</div>
+      <div class="h-title" id="chatTitle">AutoAdvisor AI</div>
       <div class="h-sub">Your honest car buying assistant</div>
     </div>
     <div class="live-badge">
@@ -108,7 +436,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;min-height:100vh;displa
   <div class="msgs" id="msgs"></div>
 
   <div class="api-note" id="apiNote">
-    Demo mode — add your Claude API key in the script to enable live AI responses. Get one at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+    Demo mode — add your Claude API key in Dashboard → Settings to enable live AI responses. Get one at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
   </div>
 
   <div class="input-row">
@@ -117,24 +445,317 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;min-height:100vh;displa
   </div>
 </div>
 
+<div id="dashView">
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon" id="dashLogo">A</div>
+      <div>
+        <div class="sb-logo-text" id="dashTitle">AutoAdvisor AI</div>
+        <div class="sb-logo-sub">Dealer panel</div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item active" data-page="leads" onclick="switchPage('leads')">
+        <span class="sb-icon">👥</span><span class="sb-label">Leads</span>
+      </button>
+      <button class="sb-item" data-page="inventory" onclick="switchPage('inventory')">
+        <span class="sb-icon">🚗</span><span class="sb-label">Inventory</span>
+      </button>
+      <button class="sb-item" data-page="analytics" onclick="switchPage('analytics')">
+        <span class="sb-icon">📊</span><span class="sb-label">Analytics</span>
+      </button>
+      <button class="sb-item" data-page="whatsapp" onclick="switchPage('whatsapp')">
+        <span class="sb-icon">📱</span><span class="sb-label">WhatsApp Demo</span>
+      </button>
+      <button class="sb-item" data-page="settings" onclick="switchPage('settings')">
+        <span class="sb-icon">⚙</span><span class="sb-label">Settings</span>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <section class="page active" id="page-leads">
+      <h1 class="page-title">Leads</h1>
+      <div class="page-sub">All customer leads captured from chat conversations.</div>
+      <div class="dash-card">
+        <div class="dash-card-title">
+          <span>Captured leads</span>
+          <div class="btn-row">
+            <button class="btn btn-sm" onclick="exportLeadsCSV()">↓ Export CSV</button>
+            <button class="btn btn-ghost btn-sm btn-danger" onclick="clearAllLeads()">Clear all</button>
+          </div>
+        </div>
+        <div class="search-row">
+          <input class="search-input" id="leadSearch" placeholder="Search by name, phone, email..." oninput="renderLeads()"/>
+          <select class="filter-select" id="leadFilter" onchange="renderLeads()">
+            <option value="">All statuses</option>
+            <option value="New">New</option>
+            <option value="Contacted">Contacted</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+        <div id="leadsTable"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-inventory">
+      <h1 class="page-title">Inventory</h1>
+      <div class="page-sub">Manage the vehicles your AI advisor can recommend.</div>
+
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Vehicles in stock</div><div class="kpi-val" id="kpiInvCount">0</div></div>
+        <div class="kpi"><div class="kpi-label">Last upload</div><div class="kpi-val" id="kpiInvLast" style="font-size:15px;">—</div></div>
+        <div class="kpi"><div class="kpi-label">Total recommendations</div><div class="kpi-val" id="kpiInvRec">0</div></div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Upload inventory CSV</div>
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('csvFile').click()">
+          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-text">Drag &amp; drop CSV here or click to browse</div>
+          <div class="dropzone-sub">Expected columns: name, type, price, miles, mpg, seats, monthly, dealer, why, tow, fuel<br>Or: make, model, year, price, miles, mpg, fuel, type</div>
+          <input type="file" id="csvFile" accept=".csv" onchange="handleCSVFile(event)"/>
+        </div>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="downloadSampleCSV()">↓ Download sample CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetInventory()">Reset to default inventory</button>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Current inventory</div>
+        <div id="inventoryTable"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-analytics">
+      <h1 class="page-title">Analytics</h1>
+      <div class="page-sub">How your AI advisor is performing.</div>
+
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Total chats</div><div class="kpi-val" id="kpiChats">0</div></div>
+        <div class="kpi"><div class="kpi-label">Leads captured</div><div class="kpi-val" id="kpiLeads">0</div></div>
+        <div class="kpi"><div class="kpi-label">Conversion rate</div><div class="kpi-val" id="kpiConv">0%</div><div class="kpi-sub">leads / chats</div></div>
+        <div class="kpi"><div class="kpi-label">Active leads</div><div class="kpi-val" id="kpiActive">0</div><div class="kpi-sub">New + Contacted</div></div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Daily chat volume (last 7 days)</div>
+        <div id="chatChart"></div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Top customer questions</div>
+        <div id="topQuestions"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-settings">
+      <h1 class="page-title">Settings</h1>
+      <div class="page-sub">Customize your dealership branding and AI configuration.</div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Dealer branding</div>
+        <div class="brand-grid">
+          <div class="brand-inputs">
+            <div class="field">
+              <label>Dealer name</label>
+              <input id="setDealerName" type="text" placeholder="Your Dealership Name" oninput="previewBranding()"/>
+              <div class="field-hint">Shown in the chat header, lead form, and recommendation message.</div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Primary color</label>
+                <input id="setBrandColor" type="color" value="#e8a020" oninput="previewBranding()"/>
+              </div>
+              <div class="field">
+                <label>Logo URL</label>
+                <input id="setLogoUrl" type="text" placeholder="https://example.com/logo.png" oninput="previewBranding()"/>
+              </div>
+            </div>
+            <div class="brand-actions">
+              <button class="btn" onclick="saveBranding()">Save branding</button>
+              <button class="btn btn-ghost" onclick="resetBranding()">Reset to default</button>
+            </div>
+          </div>
+          <div class="brand-preview-wrap">
+            <div class="preview-label">Live preview</div>
+            <div class="brand-preview" id="brandPreview">
+              <div class="bp-header">
+                <div class="bp-logo" id="bpLogo">A</div>
+                <div class="bp-htext">
+                  <div class="bp-name" id="bpName">AutoAdvisor AI</div>
+                  <div class="bp-sub">Your honest car buying assistant</div>
+                </div>
+                <div class="bp-live"><div class="bp-live-dot"></div><div class="bp-live-txt">Live</div></div>
+              </div>
+              <div class="bp-body">
+                <div class="bp-msg">
+                  <div class="bp-av" id="bpAv">A</div>
+                  <div class="bp-bubble">Hi! What type of vehicle are you looking for?</div>
+                </div>
+                <div class="bp-chips">
+                  <span class="bp-chip">Truck</span>
+                  <span class="bp-chip">SUV</span>
+                  <span class="bp-chip">Sedan</span>
+                </div>
+                <div class="bp-card">
+                  <div class="bp-card-info">
+                    <div class="bp-card-name">2023 Ford F-150 XLT</div>
+                    <div class="bp-card-detail">18,200 mi · Best match</div>
+                  </div>
+                  <div class="bp-card-price">$34,900</div>
+                </div>
+                <div class="bp-form">
+                  <div class="bp-form-h"><span id="bpFormName">AutoAdvisor AI</span> sales team</div>
+                  <div class="bp-form-fake"></div>
+                  <div class="bp-form-fake" style="width:70%;"></div>
+                  <button class="bp-form-btn">Send my matches →</button>
+                </div>
+              </div>
+              <div class="bp-input">
+                <div class="bp-input-fake">Type a message...</div>
+                <button class="bp-send">→</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Claude API</div>
+        <div class="field">
+          <label>API key</label>
+          <input id="setApiKey" type="password" placeholder="sk-ant-..." autocomplete="off"/>
+          <div class="field-hint">Stored locally in your browser. Get a key at console.anthropic.com</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="saveApiKey()">Save API key</button>
+          <button class="btn btn-ghost" onclick="clearApiKey()">Clear API key</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-whatsapp">
+      <h1 class="page-title">WhatsApp / SMS Demo</h1>
+      <div class="page-sub">Show prospects how AutoAdvisor handles customers over text — simulator only, hooks up to real Twilio in production.</div>
+
+      <div class="wa-demo-wrap">
+        <div class="wa-banner" id="waBanner">
+          <div class="wa-banner-dot"></div>
+          <div><strong>This is a demo</strong> — go live in under 30 minutes with Twilio + AutoAdvisor</div>
+        </div>
+
+        <div class="wa-toggle-row" role="tablist">
+          <button class="wa-toggle active" data-mode="whatsapp" onclick="setWaMode('whatsapp')">
+            <span class="wa-toggle-dot"></span>WhatsApp
+          </button>
+          <button class="wa-toggle" data-mode="sms" onclick="setWaMode('sms')">
+            <span class="wa-toggle-dot"></span>SMS
+          </button>
+        </div>
+
+        <div class="wa-layout">
+          <div class="wa-pane">
+            <div class="phone-frame">
+              <button class="wa-fullscreen-btn" id="waFsBtn" onclick="toggleWaFullscreen()">⛶ Pitch mode</button>
+              <div class="phone-screen">
+                <div class="phone-status-bar" id="pbStatus">
+                  <span class="pb-time" id="pbTime">9:41</span>
+                  <span class="pb-icons">•••• 5G ▮</span>
+                </div>
+                <div class="sim wa" id="waSim">
+                  <div class="sim-header" id="waHeader"></div>
+                  <div class="sim-body" id="waBody"></div>
+                  <div class="sim-input">
+                    <div class="sim-input-box">
+                      <input id="waInput" placeholder="Type a message" onkeydown="if(event.key==='Enter')sendWa()" autocomplete="off"/>
+                    </div>
+                    <button class="sim-send" id="waSendBtn" onclick="sendWa()" aria-label="Send">➤</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="wa-demo-actions">
+              <button class="btn btn-ghost btn-sm" onclick="resetWaDemo()">↺ Reset demo conversation</button>
+            </div>
+          </div>
+
+          <div class="wa-side">
+            <div class="wa-info-card" id="waInfoCard">
+              <div class="wa-info-h">
+                <div class="wa-info-icon" id="waInfoIcon">✓</div>
+                <span id="waInfoTitle">WhatsApp Business</span>
+              </div>
+              <div class="wa-info-text">
+                Customers text your dealership's number and get instant, honest matches — 24/7. AutoAdvisor handles qualification, recommendations, and test-drive booking until a human takes over.
+              </div>
+              <div class="wa-info-list">
+                <div class="wa-info-item">Same honest advisor persona as web chat</div>
+                <div class="wa-info-item">Uses your live inventory CSV</div>
+                <div class="wa-info-item">Captures leads to your dashboard automatically</div>
+                <div class="wa-info-item">Hands off to your sales team when the customer is ready</div>
+              </div>
+            </div>
+
+            <div class="dash-card" style="margin-bottom:0;">
+              <div class="dash-card-title">How it works</div>
+              <div class="steps-grid" id="waSteps">
+                <div class="step-card">
+                  <div class="step-num">1</div>
+                  <div class="step-icon">📱</div>
+                  <div class="step-title">Customer texts in</div>
+                  <div class="step-text">They message your dealership number. WhatsApp or SMS — same number, both channels.</div>
+                </div>
+                <div class="step-card">
+                  <div class="step-num">2</div>
+                  <div class="step-icon">🤖</div>
+                  <div class="step-title">AutoAdvisor replies</div>
+                  <div class="step-text">Instant honest matches from your inventory. No phone trees, no waiting.</div>
+                </div>
+                <div class="step-card">
+                  <div class="step-num">3</div>
+                  <div class="step-icon">🔔</div>
+                  <div class="step-title">You get the lead</div>
+                  <div class="step-text">Lead lands in your dashboard. Sales team takes over when the customer is ready to buy.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">Transcript</div>
+        <div class="modal-sub" id="modalSub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
 // ============================================================
-// YOUR CLAUDE API KEY — get one at console.anthropic.com
+// DEFAULT INVENTORY (used when no CSV has been uploaded)
 // ============================================================
-const CLAUDE_API_KEY = "";
-
-// ============================================================
-// INVENTORY — swap with real dealer CSV data later
-// ============================================================
-const INVENTORY = [
-  {id:1,name:"2023 Ford F-150 XLT",type:"truck",price:34900,miles:18200,mpg:20,tow:8200,seats:5,monthly:589,dealer:"Metro Ford",why:"Best tow rating in your budget"},
-  {id:2,name:"2022 Ram 1500 Big Horn",type:"truck",price:32500,miles:24100,mpg:21,tow:7640,seats:5,monthly:549,dealer:"Capitol Ram",why:"Lowest price, proven reliability"},
-  {id:3,name:"2023 Toyota Tacoma TRD",type:"truck",price:37200,miles:9800,mpg:22,tow:6800,seats:5,monthly:628,dealer:"ToyotaWorld",why:"Best resale value, low miles"},
-  {id:4,name:"2023 Kia Telluride EX",type:"suv",price:38900,miles:12400,mpg:24,seats:8,monthly:657,dealer:"Kia Direct",why:"Top-rated family SUV, 8 seats"},
-  {id:5,name:"2022 Chevrolet Traverse LT",type:"suv",price:34200,miles:21800,mpg:22,seats:8,monthly:578,dealer:"Chevy City",why:"3rd row + stays under $35k"},
-  {id:6,name:"2021 Honda Pilot EX-L",type:"suv",price:31800,miles:29200,mpg:23,seats:8,monthly:537,dealer:"Honda Hub",why:"Honda reliability, best price"},
-  {id:7,name:"2022 Toyota Camry XSE",type:"sedan",price:26400,miles:19800,mpg:32,seats:5,monthly:446,dealer:"ToyotaWorld",why:"32 mpg, lowest running cost"},
-  {id:8,name:"2021 Honda Accord Sport",type:"sedan",price:24900,miles:28100,mpg:30,seats:5,monthly:420,dealer:"Honda Hub",why:"Best value sedan on the lot"},
+const DEFAULT_INVENTORY = [
+  {id:1,name:"2023 Ford F-150 XLT",type:"truck",price:34900,miles:18200,mpg:20,tow:8200,seats:5,monthly:589,dealer:"Metro Ford",why:"Best tow rating in your budget",fuel:"Gas",year:2023,make:"Ford",model:"F-150 XLT"},
+  {id:2,name:"2022 Ram 1500 Big Horn",type:"truck",price:32500,miles:24100,mpg:21,tow:7640,seats:5,monthly:549,dealer:"Capitol Ram",why:"Lowest price, proven reliability",fuel:"Gas",year:2022,make:"Ram",model:"1500 Big Horn"},
+  {id:3,name:"2023 Toyota Tacoma TRD",type:"truck",price:37200,miles:9800,mpg:22,tow:6800,seats:5,monthly:628,dealer:"ToyotaWorld",why:"Best resale value, low miles",fuel:"Gas",year:2023,make:"Toyota",model:"Tacoma TRD"},
+  {id:4,name:"2023 Kia Telluride EX",type:"suv",price:38900,miles:12400,mpg:24,seats:8,monthly:657,dealer:"Kia Direct",why:"Top-rated family SUV, 8 seats",fuel:"Gas",year:2023,make:"Kia",model:"Telluride EX"},
+  {id:5,name:"2022 Chevrolet Traverse LT",type:"suv",price:34200,miles:21800,mpg:22,seats:8,monthly:578,dealer:"Chevy City",why:"3rd row + stays under $35k",fuel:"Gas",year:2022,make:"Chevrolet",model:"Traverse LT"},
+  {id:6,name:"2021 Honda Pilot EX-L",type:"suv",price:31800,miles:29200,mpg:23,seats:8,monthly:537,dealer:"Honda Hub",why:"Honda reliability, best price",fuel:"Gas",year:2021,make:"Honda",model:"Pilot EX-L"},
+  {id:7,name:"2022 Toyota Camry XSE",type:"sedan",price:26400,miles:19800,mpg:32,seats:5,monthly:446,dealer:"ToyotaWorld",why:"32 mpg, lowest running cost",fuel:"Gas",year:2022,make:"Toyota",model:"Camry XSE"},
+  {id:8,name:"2021 Honda Accord Sport",type:"sedan",price:24900,miles:28100,mpg:30,seats:5,monthly:420,dealer:"Honda Hub",why:"Best value sedan on the lot",fuel:"Gas",year:2021,make:"Honda",model:"Accord Sport"},
 ];
 
 const QS = [
@@ -144,16 +765,54 @@ const QS = [
   {id:4,q:"How soon are you looking to buy?",opts:["This week","Within a month","Just browsing","Need to sell my trade-in first"]},
 ];
 
+// ============================================================
+// LOCAL STORAGE
+// ============================================================
+const SK = {
+  leads:'autoadvisor_leads',
+  inv:'autoadvisor_inventory',
+  invDate:'autoadvisor_inventory_uploaded',
+  analytics:'autoadvisor_analytics',
+  settings:'autoadvisor_settings'
+};
+
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){toast('Storage error — limit may be reached','error');}}
+
+function getLeads(){return lsGet(SK.leads,[]);}
+function setLeads(v){lsSet(SK.leads,v);}
+function getInventory(){return lsGet(SK.inv,null)||DEFAULT_INVENTORY;}
+function setInventory(v){lsSet(SK.inv,v);lsSet(SK.invDate,Date.now());}
+function getAnalytics(){return lsGet(SK.analytics,{chatsStarted:0,questions:{},dailyVolume:{},recommendations:{}});}
+function setAnalytics(v){lsSet(SK.analytics,v);}
+function getSettings(){return lsGet(SK.settings,{dealerName:'AutoAdvisor AI',brandColor:'#e8a020',logoUrl:'',apiKey:''});}
+function setSettings(v){lsSet(SK.settings,v);}
+
+// ============================================================
+// CHAT STATE
+// ============================================================
 let profile={type:null,budget:null,needs:[],timeline:null,name:"",phone:"",email:""};
 let step=0, awaitingLead=false, qualified=false;
+let currentTranscript=[];
+let currentTopCar=null;
+let chatCountedToday=false;
 
 function $(id){return document.getElementById(id);}
+
+function recordMessage(role,html){
+  const tmp=document.createElement('div');
+  tmp.innerHTML=html;
+  tmp.querySelectorAll('input,button,.lead-form,.opts').forEach(e=>e.remove());
+  const text=tmp.textContent.replace(/\s+/g,' ').trim();
+  if(text)currentTranscript.push({role,text,time:Date.now()});
+}
 
 function addMsg(role,html){
   const m=$("msgs"),d=document.createElement("div");
   d.className=`msg ${role}`;
   d.innerHTML=`${role==="ai"?'<div class="av ai">A</div>':""}<div class="bubble">${html}</div>${role==="user"?'<div class="av user">U</div>':""}`;
   m.appendChild(d); m.scrollTop=m.scrollHeight;
+  recordMessage(role,html);
 }
 
 function showTyping(){
@@ -192,7 +851,7 @@ async function sendMsg(){
 
 async function processAnswer(val){
   showTyping(); await delay(650); removeTyping();
-  if(step===0){step=1;askQ(1);}
+  if(step===0){trackChatStarted();step=1;askQ(1);}
   else if(step===1){
     const v=val.toLowerCase();
     if(v.includes("truck"))profile.type="truck";
@@ -208,7 +867,8 @@ async function processAnswer(val){
 
 async function showResults(){
   setProgress(5); showTyping(); await delay(900); removeTyping();
-  let cars=[...INVENTORY];
+  const inv=getInventory();
+  let cars=[...inv];
   if(profile.type&&profile.type!=="any")cars=cars.filter(c=>c.type===profile.type);
   if(profile.budget==="Under $25k")cars=cars.filter(c=>c.price<25000);
   else if(profile.budget==="$25k – $35k")cars=cars.filter(c=>c.price>=25000&&c.price<=35000);
@@ -216,50 +876,55 @@ async function showResults(){
   else if(profile.budget==="$45k+")cars=cars.filter(c=>c.price>=45000);
   const need=profile.needs[0]||"";
   if(need.includes("Tow"))cars.sort((a,b)=>(b.tow||0)-(a.tow||0));
-  else if(need.includes("Fuel"))cars.sort((a,b)=>b.mpg-a.mpg);
-  else if(need.includes("mileage"))cars.sort((a,b)=>a.miles-b.miles);
-  else if(need.includes("monthly"))cars.sort((a,b)=>a.monthly-b.monthly);
-  if(!cars.length)cars=INVENTORY.filter(c=>profile.type==="any"||c.type===profile.type).slice(0,3);
-  if(!cars.length)cars=INVENTORY.slice(0,3);
+  else if(need.includes("Fuel"))cars.sort((a,b)=>(b.mpg||0)-(a.mpg||0));
+  else if(need.includes("mileage"))cars.sort((a,b)=>(a.miles||0)-(b.miles||0));
+  else if(need.includes("monthly"))cars.sort((a,b)=>(a.monthly||0)-(b.monthly||0));
+  if(!cars.length)cars=inv.filter(c=>profile.type==="any"||c.type===profile.type).slice(0,3);
+  if(!cars.length)cars=inv.slice(0,3);
   cars=cars.slice(0,3);
+  currentTopCar=cars[0]||null;
+  trackRecommendations(cars.map(c=>c.id));
   const icons={truck:"🛻",suv:"🚙",sedan:"🚗"};
   const carHTML=cars.map((c,i)=>`
     <div class="car-card" onclick="showCost(${c.id})">
       <div class="car-icon">${icons[c.type]||"🚗"}</div>
       <div class="car-info">
         <div class="car-name">${c.name}</div>
-        <div class="car-detail">${c.miles.toLocaleString()} mi · ${c.dealer}</div>
-        <div class="car-why">${c.why}</div>
+        <div class="car-detail">${(c.miles||0).toLocaleString()} mi · ${c.dealer||''}</div>
+        <div class="car-why">${c.why||''}</div>
         <span class="match ${i===0?"match-hi":"match-md"}">${i===0?"Best match":"Good match"}</span>
       </div>
       <div class="car-price">
-        <div class="price-main">$${c.price.toLocaleString()}</div>
-        <div class="price-mo">~$${c.monthly}/mo</div>
+        <div class="price-main">$${(c.price||0).toLocaleString()}</div>
+        <div class="price-mo">~$${c.monthly||0}/mo</div>
       </div>
     </div>`).join("");
-  addMsg("ai",`Based on your answers, here are your top ${cars.length} matches — tap any card to see the full cost of ownership breakdown:
+  const dealerName=getSettings().dealerName||'AutoAdvisor AI';
+  addMsg("ai",`Based on your answers, <strong>${esc(dealerName)}</strong> recommends these top ${cars.length} matches — tap any card to see the full cost of ownership breakdown:
     <div class="summary">Vehicle: ${profile.type==="any"?"Any":profile.type} &bull; Budget: ${profile.budget} &bull; Priority: ${need||"Best value"} &bull; Timeline: ${profile.timeline}</div>
     <div class="car-cards">${carHTML}</div>`);
   await delay(700);
-  addMsg("ai",`Want to hold your top pick or schedule a test drive? Leave your info and a salesperson will reach out — no pressure at all.
+  addMsg("ai",`Want to hold your top pick or schedule a test drive? Leave your info and the ${esc(dealerName)} team will reach out — no pressure at all.
     <div class="lead-form">
+      <div class="lead-form-header"><span>${esc(dealerName)}</span> sales team</div>
       <input id="lname" placeholder="Your name"/>
       <input id="lphone" placeholder="Phone number"/>
       <input id="lemail" placeholder="Email address"/>
-      <button class="lead-submit" onclick="submitLead()">Send my matches to a salesperson →</button>
+      <button class="lead-submit" onclick="submitLead()">Send my matches to ${esc(dealerName)} →</button>
     </div>`);
   awaitingLead=true;
 }
 
 function showCost(id){
-  const car=INVENTORY.find(c=>c.id===id);if(!car)return;
-  const ins=Math.round(1200+(car.price*.02));
-  const fuel=Math.round((15000/car.mpg)*3.8);
+  const car=getInventory().find(c=>c.id===id);if(!car)return;
+  const ins=Math.round(1200+((car.price||0)*.02));
+  const mpg=car.mpg||25;
+  const fuel=Math.round((15000/mpg)*3.8);
   const maint=900;
-  const total=Math.round((car.monthly*12)+ins+fuel+maint);
+  const total=Math.round(((car.monthly||0)*12)+ins+fuel+maint);
   addMsg("ai",`True annual cost for the <strong>${car.name}</strong>:<br><br>
     <table class="cost-table">
-      <tr><td>Loan payments (12 mo)</td><td>$${(car.monthly*12).toLocaleString()}</td></tr>
+      <tr><td>Loan payments (12 mo)</td><td>$${((car.monthly||0)*12).toLocaleString()}</td></tr>
       <tr><td>Est. insurance</td><td>$${ins.toLocaleString()}</td></tr>
       <tr><td>Fuel (15,000 mi/yr)</td><td>$${fuel.toLocaleString()}</td></tr>
       <tr><td>Maintenance est.</td><td>$${maint.toLocaleString()}</td></tr>
@@ -276,9 +941,31 @@ function submitLead(){
   profile.name=name;profile.phone=phone;profile.email=email;
   awaitingLead=false;
   addMsg("user",`${name} · ${phone||"—"} · ${email||"—"}`);
-  // TODO: POST lead to your backend database here
-  console.log("LEAD CAPTURED:",JSON.stringify(profile,null,2));
+  saveLead();
   setTimeout(()=>addMsg("ai",`Thanks ${name}! A salesperson will be in touch within the hour. Feel free to ask me anything in the meantime — financing, trade-in value, feature comparisons, anything at all.`),600);
+}
+
+function saveLead(){
+  const leads=getLeads();
+  const lead={
+    id:Date.now()+'-'+Math.random().toString(36).slice(2,7),
+    name:profile.name,
+    phone:profile.phone,
+    email:profile.email,
+    vehicleInterest:currentTopCar?currentTopCar.name:(profile.type&&profile.type!=='any'?profile.type:'Any'),
+    budget:profile.budget||'',
+    timeline:profile.timeline||'',
+    needs:[...profile.needs],
+    status:'New',
+    date:Date.now(),
+    transcript:[...currentTranscript]
+  };
+  leads.unshift(lead);
+  setLeads(leads);
+  const a=getAnalytics();
+  setAnalytics(a);
+  if(document.getElementById('page-leads').classList.contains('active'))renderLeads();
+  if(document.getElementById('page-analytics').classList.contains('active'))renderAnalytics();
 }
 
 function handleLeadInput(val){
@@ -287,15 +974,17 @@ function handleLeadInput(val){
 }
 
 async function handleFreeChat(val){
+  trackQuestion(val);
   showTyping();await delay(700);removeTyping();
-  if(CLAUDE_API_KEY){
+  const key=getSettings().apiKey;
+  if(key){
     try{
       const res=await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
-        headers:{"Content-Type":"application/json","x-api-key":CLAUDE_API_KEY,"anthropic-version":"2023-06-01"},
+        headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01"},
         body:JSON.stringify({
           model:"claude-sonnet-4-20250514",max_tokens:1000,
-          system:`You are AutoAdvisor, an honest car buying assistant. Inventory: ${JSON.stringify(INVENTORY)}. Customer profile: ${JSON.stringify(profile)}. Be warm, honest, concise. Never pushy. Focus on total cost of ownership. Never invent inventory not in the list.`,
+          system:`You are AutoAdvisor, an honest car buying assistant. Inventory: ${JSON.stringify(getInventory())}. Customer profile: ${JSON.stringify(profile)}. Be warm, honest, concise. Never pushy. Focus on total cost of ownership. Never invent inventory not in the list.`,
           messages:[{role:"user",content:val}]
         })
       });
@@ -320,18 +1009,830 @@ function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 function restartApp(){
   profile={type:null,budget:null,needs:[],timeline:null,name:"",phone:"",email:""};
   step=0;awaitingLead=false;qualified=false;
+  currentTranscript=[];currentTopCar=null;chatCountedToday=false;
   $("msgs").innerHTML="";
   setProgress(1);
   init();
 }
 
 function init(){
-  $("apiNote").style.display=CLAUDE_API_KEY?"none":"block";
+  const settings=getSettings();
+  $("apiNote").style.display=settings.apiKey?"none":"block";
   addMsg("ai","Hi! I'm AutoAdvisor — your honest car buying assistant. I'll ask you 4 quick questions so I can match you with the perfect vehicle from our inventory. Ready?"+
     `<div class="opts"><button class="opt" onclick="processAnswer('start')">Let's find my car →</button></div>`);
 }
 
-init();
+// ============================================================
+// ANALYTICS TRACKING
+// ============================================================
+function todayKey(){return new Date().toISOString().slice(0,10);}
+
+function trackChatStarted(){
+  if(chatCountedToday)return;
+  const a=getAnalytics();
+  a.chatsStarted=(a.chatsStarted||0)+1;
+  const k=todayKey();
+  a.dailyVolume[k]=(a.dailyVolume[k]||0)+1;
+  setAnalytics(a);
+  chatCountedToday=true;
+}
+
+function trackRecommendations(carIds){
+  const a=getAnalytics();
+  carIds.forEach(id=>{a.recommendations[id]=(a.recommendations[id]||0)+1;});
+  setAnalytics(a);
+}
+
+function categorizeQuestion(text){
+  const t=(text||'').toLowerCase();
+  if(/financ|loan|apr|interest rate|credit|monthly payment/.test(t))return 'Financing & loans';
+  if(/trade.?in|trade my|trade value/.test(t))return 'Trade-in value';
+  if(/insur/.test(t))return 'Insurance costs';
+  if(/mpg|fuel econ|gas mileage|hybrid|electric|ev /.test(t))return 'Fuel economy & MPG';
+  if(/warrant/.test(t))return 'Warranty coverage';
+  if(/maint|repair|service cost/.test(t))return 'Maintenance & repairs';
+  if(/test drive|appointment|schedule|visit/.test(t))return 'Scheduling a test drive';
+  if(/price|cost|negotiate|discount|deal|haggle/.test(t))return 'Pricing & negotiation';
+  if(/tow|haul|payload|trailer/.test(t))return 'Towing & payload';
+  if(/safe|crash|airbag|reliab/.test(t))return 'Safety & reliability';
+  if(/feature|tech|infotain|carplay/.test(t))return 'Features & technology';
+  return 'Other questions';
+}
+
+function trackQuestion(text){
+  const a=getAnalytics();
+  const cat=categorizeQuestion(text);
+  a.questions[cat]=(a.questions[cat]||0)+1;
+  setAnalytics(a);
+}
+
+// ============================================================
+// MODE TOGGLE & NAVIGATION
+// ============================================================
+function toggleMode(){
+  const dashOn=document.body.classList.toggle('dash-mode');
+  if(dashOn){
+    $("modeText").textContent='Back to chat';
+    $("modeIcon").textContent='💬';
+    renderCurrentPage();
+  }else{
+    $("modeText").textContent='Dealer Dashboard';
+    $("modeIcon").textContent='⊞';
+  }
+}
+
+function switchPage(page){
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+page));
+  renderCurrentPage();
+}
+
+function renderCurrentPage(){
+  const active=document.querySelector('.page.active');
+  if(!active)return;
+  const id=active.id;
+  if(id==='page-leads')renderLeads();
+  else if(id==='page-inventory')renderInventory();
+  else if(id==='page-analytics')renderAnalytics();
+  else if(id==='page-settings')renderSettings();
+  else if(id==='page-whatsapp')renderWaSim();
+}
+
+// ============================================================
+// LEADS PAGE
+// ============================================================
+function renderLeads(){
+  const leads=getLeads();
+  const search=($("leadSearch")?.value||'').toLowerCase().trim();
+  const filter=$("leadFilter")?.value||'';
+  let filtered=leads;
+  if(filter)filtered=filtered.filter(l=>l.status===filter);
+  if(search)filtered=filtered.filter(l=>
+    (l.name||'').toLowerCase().includes(search)||
+    (l.phone||'').toLowerCase().includes(search)||
+    (l.email||'').toLowerCase().includes(search)||
+    (l.vehicleInterest||'').toLowerCase().includes(search)
+  );
+  const el=$("leadsTable");
+  if(!filtered.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📭</div>${leads.length?'No leads match your filters.':'No leads captured yet. Leads from chat conversations will appear here.'}</div>`;
+    return;
+  }
+  const rows=filtered.map(l=>`
+    <tr class="clickable" onclick="if(!event.target.matches('button,select'))viewTranscript('${l.id}')">
+      <td><strong>${esc(l.name)}</strong></td>
+      <td>${esc(l.phone||'—')}</td>
+      <td>${esc(l.email||'—')}</td>
+      <td>${esc(l.vehicleInterest||'—')}</td>
+      <td>${formatDate(l.date)}</td>
+      <td>
+        <select class="badge badge-${(l.status||'New').toLowerCase()}" onchange="setLeadStatus('${l.id}',this.value)" onclick="event.stopPropagation()">
+          <option ${l.status==='New'?'selected':''}>New</option>
+          <option ${l.status==='Contacted'?'selected':''}>Contacted</option>
+          <option ${l.status==='Closed'?'selected':''}>Closed</option>
+        </select>
+      </td>
+      <td>
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewTranscript('${l.id}')">View</button>
+          <button class="btn btn-ghost btn-sm btn-danger" onclick="event.stopPropagation();deleteLead('${l.id}')">Delete</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  el.innerHTML=`<div class="dash-table-wrap"><table class="dash-table">
+    <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Interest</th><th>Captured</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function setLeadStatus(id,status){
+  const leads=getLeads();
+  const l=leads.find(x=>x.id===id);
+  if(!l)return;
+  l.status=status;
+  setLeads(leads);
+  renderLeads();
+  toast(`Lead marked as ${status}`,'success');
+}
+
+function deleteLead(id){
+  if(!confirm('Delete this lead permanently?'))return;
+  setLeads(getLeads().filter(l=>l.id!==id));
+  renderLeads();
+  toast('Lead deleted','success');
+}
+
+function clearAllLeads(){
+  const leads=getLeads();
+  if(!leads.length){toast('No leads to clear','error');return;}
+  if(!confirm(`Delete all ${leads.length} leads? This cannot be undone.`))return;
+  setLeads([]);
+  renderLeads();
+  toast('All leads cleared','success');
+}
+
+function viewTranscript(id){
+  const lead=getLeads().find(l=>l.id===id);
+  if(!lead)return;
+  $("modalTitle").textContent=`Chat with ${lead.name}`;
+  $("modalSub").textContent=`Captured ${formatDate(lead.date)} · ${lead.vehicleInterest||'No vehicle interest recorded'}`;
+  const t=lead.transcript||[];
+  if(!t.length){
+    $("modalBody").innerHTML=`<div class="empty">No transcript was recorded for this lead.</div>`;
+  }else{
+    $("modalBody").innerHTML=t.map(line=>`
+      <div class="transcript-line ${line.role}">
+        <div class="transcript-role">${line.role==='ai'?'AutoAdvisor':lead.name||'Customer'}</div>
+        ${esc(line.text)}
+      </div>`).join('');
+  }
+  $("modalOverlay").classList.add('active');
+}
+
+function closeModal(){$("modalOverlay").classList.remove('active');}
+
+function exportLeadsCSV(){
+  const leads=getLeads();
+  if(!leads.length){toast('No leads to export','error');return;}
+  const headers=['Date','Name','Phone','Email','Vehicle Interest','Status','Budget','Timeline','Needs'];
+  const rows=leads.map(l=>[
+    new Date(l.date).toISOString(),
+    l.name,l.phone,l.email,l.vehicleInterest,l.status,l.budget,l.timeline,(l.needs||[]).join('; ')
+  ].map(csvCell).join(','));
+  const csv=headers.join(',')+'\n'+rows.join('\n');
+  downloadFile(csv,`autoadvisor-leads-${new Date().toISOString().slice(0,10)}.csv`,'text/csv');
+  toast(`Exported ${leads.length} lead${leads.length===1?'':'s'}`,'success');
+}
+
+function csvCell(s){
+  s=(s==null?'':s).toString();
+  if(/[",\n]/.test(s))return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+
+function downloadFile(content,name,type){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),100);
+}
+
+// ============================================================
+// INVENTORY PAGE
+// ============================================================
+function renderInventory(){
+  const inv=getInventory();
+  const analytics=getAnalytics();
+  const lastUpload=lsGet(SK.invDate,null);
+  $("kpiInvCount").textContent=inv.length;
+  $("kpiInvLast").textContent=lastUpload?formatDate(lastUpload):'Default data';
+  const totalRec=Object.values(analytics.recommendations||{}).reduce((s,v)=>s+v,0);
+  $("kpiInvRec").textContent=totalRec;
+
+  const sorted=[...inv].sort((a,b)=>(analytics.recommendations[b.id]||0)-(analytics.recommendations[a.id]||0));
+  const el=$("inventoryTable");
+  if(!sorted.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">🚗</div>No vehicles in inventory.</div>`;
+    return;
+  }
+  const rows=sorted.map(v=>{
+    const recs=analytics.recommendations[v.id]||0;
+    const parsed=parseVehicleName(v);
+    return `<tr>
+      <td>${esc(parsed.year)}</td>
+      <td>${esc(parsed.make)}</td>
+      <td>${esc(parsed.model)}</td>
+      <td>$${(v.price||0).toLocaleString()}</td>
+      <td>${(v.miles||0).toLocaleString()}</td>
+      <td>${esc(v.fuel||(v.mpg?'Gas':'—'))}</td>
+      <td>${recs?`<span class="rec-badge">${recs}×</span>`:'<span style="color:#7a8fa6">0</span>'}</td>
+      <td><button class="btn btn-ghost btn-sm btn-danger" onclick="deleteVehicle(${JSON.stringify(v.id)})">Delete</button></td>
+    </tr>`;
+  }).join('');
+  el.innerHTML=`<div class="dash-table-wrap"><table class="dash-table">
+    <thead><tr><th>Year</th><th>Make</th><th>Model</th><th>Price</th><th>Miles</th><th>Fuel</th><th>Recommended</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function parseVehicleName(v){
+  if(v.year||v.make||v.model){
+    return {year:v.year||'—',make:v.make||'—',model:v.model||v.name||'—'};
+  }
+  const m=(v.name||'').match(/^(\d{4})\s+(\S+)\s+(.+)$/);
+  if(m)return {year:m[1],make:m[2],model:m[3]};
+  return {year:'—',make:'—',model:v.name||'—'};
+}
+
+function deleteVehicle(id){
+  if(!confirm('Delete this vehicle from inventory?'))return;
+  const inv=getInventory().filter(v=>v.id!==id);
+  setInventory(inv);
+  renderInventory();
+  toast('Vehicle deleted','success');
+}
+
+function resetInventory(){
+  if(!confirm('Reset inventory to the default sample vehicles? Custom inventory will be lost.'))return;
+  localStorage.removeItem(SK.inv);
+  localStorage.removeItem(SK.invDate);
+  renderInventory();
+  toast('Inventory reset to default','success');
+}
+
+function handleCSVFile(e){
+  const f=e.target.files?.[0];
+  if(f)readCSV(f);
+  e.target.value='';
+}
+
+function readCSV(file){
+  if(!file.name.toLowerCase().endsWith('.csv')&&file.type!=='text/csv'){
+    toast('Please upload a .csv file','error');return;
+  }
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const rows=parseCSV(ev.target.result);
+      if(!rows.length){toast('CSV is empty or invalid','error');return;}
+      const inv=rowsToInventory(rows);
+      if(!inv.length){toast('No valid vehicles parsed from CSV','error');return;}
+      setInventory(inv);
+      renderInventory();
+      toast(`Uploaded ${inv.length} vehicle${inv.length===1?'':'s'}`,'success');
+    }catch(err){toast('Error parsing CSV: '+err.message,'error');}
+  };
+  reader.onerror=()=>toast('Failed to read file','error');
+  reader.readAsText(file);
+}
+
+function parseCSV(text){
+  const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim().length);
+  if(lines.length<2)return [];
+  const headers=parseCSVLine(lines[0]).map(h=>h.trim().toLowerCase());
+  const out=[];
+  for(let i=1;i<lines.length;i++){
+    const vals=parseCSVLine(lines[i]);
+    const obj={};
+    headers.forEach((h,idx)=>obj[h]=(vals[idx]||'').trim());
+    out.push(obj);
+  }
+  return out;
+}
+
+function parseCSVLine(line){
+  const out=[];
+  let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){
+      if(inQ&&line[i+1]==='"'){cur+='"';i++;}
+      else inQ=!inQ;
+    }
+    else if(c===','&&!inQ){out.push(cur);cur='';}
+    else cur+=c;
+  }
+  out.push(cur);
+  return out;
+}
+
+function rowsToInventory(rows){
+  return rows.map((r,i)=>{
+    const price=parseInt((r.price||'').replace(/[$,]/g,''))||0;
+    const miles=parseInt((r.miles||r.mileage||'').replace(/[,]/g,''))||0;
+    const monthly=parseInt(r.monthly)||Math.round(price*0.018);
+    const year=parseInt(r.year)||null;
+    const make=r.make||'';
+    const model=r.model||'';
+    let name=r.name||r.vehicle||'';
+    if(!name){
+      const parts=[];
+      if(year)parts.push(year);
+      if(make)parts.push(make);
+      if(model)parts.push(model);
+      name=parts.join(' ').trim()||`Vehicle ${i+1}`;
+    }
+    let type=(r.type||'').toLowerCase();
+    if(!type){
+      const n=name.toLowerCase();
+      if(/truck|f-?150|silverado|sierra|ram|tacoma|tundra|frontier|ridgeline|maverick|colorado|titan/.test(n))type='truck';
+      else if(/suv|crossover|tahoe|suburban|expedition|telluride|pilot|highlander|traverse|explorer|escape|rav4|cr-?v|equinox|rogue|atlas|pathfinder|forester|outback|4runner|grand cherokee|pilot/.test(n))type='suv';
+      else type='sedan';
+    }
+    return {
+      id:r.id?(parseInt(r.id)||(Date.now()+i)):(Date.now()+i),
+      name,type,price,miles,
+      mpg:parseInt(r.mpg)||0,
+      tow:parseInt(r.tow||r.towing)||0,
+      seats:parseInt(r.seats)||5,
+      monthly,
+      dealer:r.dealer||'Our dealership',
+      why:r.why||'Available in our inventory',
+      fuel:r.fuel||(parseInt(r.mpg)>0?'Gas':''),
+      year,make,model
+    };
+  });
+}
+
+function downloadSampleCSV(){
+  const csv=`year,make,model,type,price,miles,mpg,seats,monthly,fuel,dealer,why,tow
+2023,Ford,F-150 XLT,truck,34900,18200,20,5,589,Gas,Metro Ford,Strong tow rating,8200
+2022,Toyota,Camry XSE,sedan,26400,19800,32,5,446,Gas,ToyotaWorld,Best fuel economy,0
+2023,Kia,Telluride EX,suv,38900,12400,24,8,657,Gas,Kia Direct,8 seats for families,5000`;
+  downloadFile(csv,'sample-inventory.csv','text/csv');
+  toast('Sample CSV downloaded','success');
+}
+
+function setupDropzone(){
+  const dz=$("dropzone");
+  if(!dz)return;
+  ['dragenter','dragover'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.add('dragover');}));
+  ['dragleave','drop'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.remove('dragover');}));
+  dz.addEventListener('drop',ev=>{
+    const f=ev.dataTransfer.files?.[0];
+    if(f)readCSV(f);
+  });
+}
+
+// ============================================================
+// ANALYTICS PAGE
+// ============================================================
+function renderAnalytics(){
+  const a=getAnalytics();
+  const leads=getLeads();
+  const chats=a.chatsStarted||0;
+  const leadCount=leads.length;
+  const conv=chats>0?Math.round((leadCount/chats)*100):0;
+  const active=leads.filter(l=>l.status==='New'||l.status==='Contacted').length;
+  $("kpiChats").textContent=chats;
+  $("kpiLeads").textContent=leadCount;
+  $("kpiConv").textContent=conv+'%';
+  $("kpiActive").textContent=active;
+
+  // Bar chart
+  const today=new Date();
+  const labels=[],counts=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    labels.push(d.toLocaleDateString('en-US',{weekday:'short'}));
+    counts.push(a.dailyVolume[k]||0);
+  }
+  const max=Math.max(...counts,1);
+  $("chatChart").innerHTML=`<div class="chart">${counts.map((c,i)=>`
+    <div class="bar-wrap">
+      <div class="bar-val">${c}</div>
+      <div class="bar-track"><div class="bar" style="height:${(c/max)*100}%"></div></div>
+      <div class="bar-label">${labels[i]}</div>
+    </div>`).join('')}</div>`;
+
+  // Top questions
+  const qs=Object.entries(a.questions||{}).sort((x,y)=>y[1]-x[1]).slice(0,5);
+  const ql=$("topQuestions");
+  if(!qs.length){
+    ql.innerHTML=`<div class="empty"><div class="empty-icon">💬</div>No customer questions tracked yet. Free-chat questions after the qualification flow will appear here.</div>`;
+  }else{
+    ql.innerHTML=`<div class="q-list">${qs.map(([q,c])=>`
+      <div class="q-item"><div class="q-text">${esc(q)}</div><div class="q-count">${c}×</div></div>`).join('')}</div>`;
+  }
+}
+
+// ============================================================
+// SETTINGS PAGE
+// ============================================================
+function renderSettings(){
+  const s=getSettings();
+  $("setDealerName").value=s.dealerName||'';
+  $("setBrandColor").value=s.brandColor||'#e8a020';
+  $("setLogoUrl").value=s.logoUrl||'';
+  $("setApiKey").value=s.apiKey||'';
+  updateMiniPreview(s);
+}
+
+function readBrandingInputs(){
+  return {
+    dealerName:$("setDealerName").value.trim()||'AutoAdvisor AI',
+    brandColor:$("setBrandColor").value||'#e8a020',
+    logoUrl:$("setLogoUrl").value.trim()
+  };
+}
+
+function previewBranding(){
+  const b=readBrandingInputs();
+  const current=getSettings();
+  const merged={...current,...b};
+  applySettings(merged);
+}
+
+function updateMiniPreview(s){
+  const color=s.brandColor||'#e8a020';
+  const name=s.dealerName||'AutoAdvisor AI';
+  const initial=(name||'A').charAt(0).toUpperCase();
+  const preview=$("brandPreview");
+  if(!preview)return;
+  preview.style.setProperty('--bc',color);
+  preview.style.setProperty('--bc-dark',shadeColor(color,-12));
+  const logo=$("bpLogo");
+  if(s.logoUrl){
+    logo.innerHTML=`<img src="${esc(s.logoUrl)}" alt="" onerror="this.parentNode.innerHTML='${esc(initial)}';this.parentNode.style.background='var(--bc)';"/>`;
+    logo.style.background='transparent';
+  }else{
+    logo.innerHTML=esc(initial);
+    logo.style.background='var(--bc)';
+  }
+  const av=$("bpAv");
+  if(av){
+    if(s.logoUrl){
+      av.innerHTML=`<img src="${esc(s.logoUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentNode.innerHTML='${esc(initial)}';"/>`;
+      av.style.background='var(--bc)';
+    }else{
+      av.innerHTML=esc(initial);
+      av.style.background='var(--bc)';
+    }
+  }
+  $("bpName").textContent=name;
+  $("bpFormName").textContent=name;
+}
+
+function saveBranding(){
+  const b=readBrandingInputs();
+  const current=getSettings();
+  const merged={...current,...b};
+  setSettings(merged);
+  applySettings(merged);
+  toast('Branding saved','success');
+}
+
+function resetBranding(){
+  if(!confirm('Reset branding to the default AutoAdvisor theme?'))return;
+  const current=getSettings();
+  const merged={...current,dealerName:'AutoAdvisor AI',brandColor:'#e8a020',logoUrl:''};
+  setSettings(merged);
+  applySettings(merged);
+  renderSettings();
+  toast('Branding reset to default','success');
+}
+
+function saveApiKey(){
+  const current=getSettings();
+  const merged={...current,apiKey:$("setApiKey").value.trim()};
+  setSettings(merged);
+  applySettings(merged);
+  toast(merged.apiKey?'API key saved':'API key cleared','success');
+}
+
+function clearApiKey(){
+  if(!confirm('Clear the saved Claude API key?'))return;
+  $("setApiKey").value='';
+  saveApiKey();
+}
+
+function applySettings(s){
+  document.title=(s.dealerName||'AutoAdvisor AI')+' — Dealer Demo';
+  $("chatTitle").textContent=s.dealerName||'AutoAdvisor AI';
+  $("dashTitle").textContent=s.dealerName||'AutoAdvisor AI';
+  const initial=(s.dealerName||'A').charAt(0).toUpperCase();
+  ['chatLogo','dashLogo'].forEach(id=>{
+    const el=$(id);
+    if(!el)return;
+    if(s.logoUrl){
+      el.innerHTML=`<img src="${esc(s.logoUrl)}" alt="Logo" onerror="this.parentNode.innerHTML='${initial}';this.parentNode.style.background='';"/>`;
+      el.style.background='transparent';
+    }else{
+      el.innerHTML=initial;
+      el.style.background='';
+    }
+  });
+  applyBrandColor(s.brandColor||'#e8a020');
+  $("apiNote").style.display=s.apiKey?'none':'block';
+  updateMiniPreview(s);
+  if($("waSim")) renderWaSim();
+}
+
+function applyBrandColor(color){
+  const dark=shadeColor(color,-12);
+  const light=shadeColor(color,12);
+  let s=document.getElementById('brandStyle');
+  if(!s){s=document.createElement('style');s.id='brandStyle';document.head.appendChild(s);}
+  s.textContent=`
+    .logo,.av.ai,.s-dot.active,.lead-submit,.send-btn,.sb-logo-icon{background:${color}!important;border-color:${color}!important;}
+    .live-txt{color:${color};}
+    .s-label.active,.price-main,.car-why{color:${color}!important;}
+    .summary{border-left-color:${color}!important;}
+    .opt:hover{border-color:${color}!important;color:${color}!important;background:${color}0d!important;}
+    .api-note{border-top-color:${color}!important;}
+    .kpi-val,.q-count,.bar-val,.rec-badge{color:${color}!important;}
+    .rec-badge{background:${color}26!important;}
+    .q-count{background:${color}1a!important;}
+    .bar{background:linear-gradient(180deg,${color},${dark})!important;}
+    .dropzone:hover,.dropzone.dragover{border-color:${color}!important;background:${color}14!important;}
+    .field input:focus,.chat-in:focus,.search-input:focus,.filter-select:focus{border-color:${color}!important;background:${color}08;}
+    .mode-toggle{color:${color}!important;border-color:${color}!important;}
+    .mode-toggle:hover{background:${color}!important;color:#0f1923!important;}
+    .restart-btn:hover{border-color:${color}!important;color:${color}!important;}
+    .lead-submit:hover,.send-btn:hover,.btn{background:${color}!important;}
+    .btn:hover{background:${dark}!important;}
+    .modal-close:hover{color:${color}!important;}
+    .btn-ghost:hover{color:${color}!important;border-color:${color}!important;}
+    .sb-item.active{background:${color}1f!important;color:${color}!important;}
+    .car-card:hover{border-color:${color}!important;box-shadow:0 2px 12px ${color}1a!important;}
+    .car-card{border-left:3px solid ${color}33;}
+    .toast{border-color:${color};}
+    .lead-form input:focus{border-color:${color}!important;}
+    .lead-form-header span{color:${color}!important;}
+  `;
+}
+
+function shadeColor(hex,pct){
+  hex=hex.replace('#','');
+  if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
+  const n=parseInt(hex,16);
+  let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  const f=pct/100;
+  r=Math.max(0,Math.min(255,Math.round(r+(f>0?(255-r)*f:r*f))));
+  g=Math.max(0,Math.min(255,Math.round(g+(f>0?(255-g)*f:g*f))));
+  b=Math.max(0,Math.min(255,Math.round(b+(f>0?(255-b)*f:b*f))));
+  return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
+}
+
+// ============================================================
+// WHATSAPP / SMS DEMO
+// ============================================================
+const WA_DEMO = [
+  {role:'user', text:"Hi I'm looking for a reliable SUV under $350 a month"},
+  {role:'ai', text:"Hey 👋 Great timing — here are 3 SUVs that fit:\n\n1. 2021 Honda Pilot EX-L — $337/mo (lease, 36mo)\n2. 2022 Toyota RAV4 LE — $329/mo\n3. 2020 Kia Sorento EX — $298/mo\n\nThe RAV4 is the most fuel-efficient (30mpg combined). Want a closer look at any?"},
+  {role:'user', text:"What about fuel costs?"},
+  {role:'ai', text:"Real numbers for the RAV4, 15k mi/yr:\n\n⛽ Fuel: ~$1,900/yr (30mpg @ $3.80/gal)\n🛡️ Insurance: ~$1,500/yr\n🔧 Maintenance: ~$700/yr (Toyota = cheap to own)\n\nTotal year-1 cost incl. lease: ~$8,050.\n\nThe Pilot runs ~$2,700/yr in fuel — $800 more than the RAV4. Worth knowing."},
+  {role:'user', text:"Can I test drive the Honda CR-V?"},
+  {role:'ai', text:"Absolutely! Can I get your name and a good time for you?"},
+  {role:'user', text:"John, Saturday morning works"},
+  {role:'ai', text:"Perfect John! I've booked a test drive for Saturday morning. The dealer will confirm the exact time shortly. 🚗\n\nAnything else to prep — financing, trade-in estimate, or insurance quote?"}
+];
+
+let waMode='whatsapp';
+let waMessages=[];
+let waBusy=false;
+
+function formatWaTime(idx){
+  const startMin = 10*60+42;
+  const total = startMin + idx;
+  const h24 = Math.floor(total/60) % 24;
+  const m = total % 60;
+  const ampm = h24 >= 12 ? 'PM' : 'AM';
+  const h12 = h24 === 0 ? 12 : (h24 > 12 ? h24-12 : h24);
+  return `${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+function resetWaDemo(){
+  waMessages = WA_DEMO.map((m,i)=>({role:m.role,text:m.text,time:formatWaTime(i)}));
+  waBusy = false;
+  renderWaSim();
+}
+
+function setWaMode(mode){
+  if(mode!=='whatsapp' && mode!=='sms') return;
+  waMode = mode;
+  renderWaSim();
+}
+
+function renderWaSim(){
+  const sim=$("waSim");
+  if(!sim)return;
+  sim.className = 'sim '+(waMode==='sms'?'sms':'wa');
+  const pb=$("pbStatus");
+  if(pb) pb.className = 'phone-status-bar '+(waMode==='sms'?'dark':'');
+  document.querySelectorAll('.wa-toggle').forEach(b=>{
+    b.classList.toggle('active', b.dataset.mode===waMode);
+  });
+  const banner=$("waBanner");
+  if(banner) banner.classList.toggle('sms', waMode==='sms');
+  const infoCard=$("waInfoCard");
+  const infoIcon=$("waInfoIcon");
+  const infoTitle=$("waInfoTitle");
+  if(infoCard){
+    infoCard.classList.toggle('sms', waMode==='sms');
+    infoIcon.className = 'wa-info-icon '+(waMode==='sms'?'sms':'');
+    infoIcon.textContent = waMode==='sms' ? '💬' : '✓';
+    infoTitle.textContent = waMode==='sms' ? 'SMS Business Bot' : 'WhatsApp Business';
+  }
+  const steps=$("waSteps");
+  if(steps){
+    steps.querySelectorAll('.step-card').forEach(c=>c.classList.toggle('sms-step', waMode==='sms'));
+  }
+  renderWaHeader();
+  renderWaBody();
+}
+
+function renderWaHeader(){
+  const header=$("waHeader");
+  if(!header)return;
+  const s=getSettings();
+  const name=s.dealerName||'AutoAdvisor AI';
+  const initial=(name||'A').charAt(0).toUpperCase();
+  const logoHtml = s.logoUrl
+    ? `<img src="${esc(s.logoUrl)}" alt="" onerror="this.parentNode.innerHTML='${esc(initial)}';"/>`
+    : esc(initial);
+  if(waMode==='whatsapp'){
+    header.innerHTML = `
+      <span class="sim-back">←</span>
+      <div class="sim-avatar">${logoHtml}</div>
+      <div class="sim-meta">
+        <div class="sim-name">${esc(name)}</div>
+        <div class="sim-status"><span class="sim-status-dot"></span>online</div>
+      </div>
+      <div class="sim-icons"><span>📹</span><span>📞</span></div>
+    `;
+  } else {
+    header.innerHTML = `
+      <span class="sim-back">‹</span>
+      <div class="sim-avatar">${logoHtml}</div>
+      <div class="sim-name">${esc(name)} <span class="chev">›</span></div>
+      <div class="sim-status">Active now</div>
+    `;
+  }
+}
+
+function renderWaBody(){
+  const body=$("waBody");
+  if(!body)return;
+  let lastUserIdx=-1;
+  waMessages.forEach((m,i)=>{ if(m.role==='user') lastUserIdx=i; });
+
+  if(waMode==='whatsapp'){
+    const parts = waMessages.map((m,i)=>{
+      const isUser = m.role==='user';
+      const text = esc(m.text).replace(/\n/g,'<br>');
+      const checks = isUser ? '<span class="wa-msg-check">✓✓</span>' : '';
+      return `<div class="wa-msg ${isUser?'user':'ai'}">${text}<span class="wa-msg-time">${esc(m.time||'')} ${checks}</span></div>`;
+    });
+    if(waBusy){
+      parts.push(`<div class="wa-msg ai typing-bubble"><div class="typing-ind"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`);
+    }
+    body.innerHTML = parts.join('');
+  } else {
+    const parts = [`<div class="sms-day">Text Message · <strong>Today ${esc(waMessages[0]?.time||'10:42 AM')}</strong></div>`];
+    waMessages.forEach((m,i)=>{
+      const isUser = m.role==='user';
+      const text = esc(m.text).replace(/\n/g,'<br>');
+      parts.push(`<div class="sms-msg ${isUser?'user':'ai'}">${text}</div>`);
+      if(isUser && i===lastUserIdx && !waBusy){
+        parts.push(`<div class="sms-delivered">Delivered</div>`);
+      }
+    });
+    if(waBusy){
+      parts.push(`<div class="sms-msg ai typing-bubble"><div class="typing-ind"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`);
+    }
+    body.innerHTML = parts.join('');
+  }
+  body.scrollTop = body.scrollHeight;
+}
+
+async function sendWa(){
+  if(waBusy)return;
+  const inp=$("waInput");
+  if(!inp)return;
+  const val=inp.value.trim();
+  if(!val)return;
+  inp.value='';
+  waMessages.push({role:'user',text:val,time:formatWaTime(waMessages.length)});
+  renderWaSim();
+  waBusy = true;
+  await delay(600);
+  renderWaSim();
+  const reply = await getWaReply(val);
+  waBusy = false;
+  waMessages.push({role:'ai',text:reply,time:formatWaTime(waMessages.length)});
+  renderWaSim();
+}
+
+async function getWaReply(userMsg){
+  const key=getSettings().apiKey;
+  if(key){
+    try{
+      const history = waMessages.map(m=>({
+        role: m.role==='user'?'user':'assistant',
+        content: m.text
+      }));
+      if(!history.length || history[history.length-1].role !== 'user'){
+        history.push({role:'user',content:userMsg});
+      }
+      const channel = waMode==='whatsapp' ? 'WhatsApp' : 'SMS';
+      const res=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:600,
+          system:`You are AutoAdvisor, an honest car-buying assistant texting customers over ${channel}. Keep replies short and conversational — these are real text messages, not chat bubbles. Use line breaks and sparing emojis. Inventory: ${JSON.stringify(getInventory().slice(0,8))}. Be honest about pricing, total cost of ownership, fuel costs, and tradeoffs. Never invent inventory not in the list. Never pushy. If the customer wants a test drive, ask for their name and a good time.`,
+          messages: history
+        })
+      });
+      const data=await res.json();
+      const reply=data.content?.map(b=>b.text||"").join("")||"";
+      if(reply) return reply;
+    }catch(e){}
+  }
+  return waFallbackReply(userMsg);
+}
+
+function waFallbackReply(msg){
+  const q=(msg||'').toLowerCase();
+  if(/financ|loan|apr|credit/.test(q)) return "Most lenders run 60–72mo terms right now. With good credit you're looking at 5–7% APR. Want me to estimate a payment on a specific vehicle?";
+  if(/trade/.test(q)) return "Check KBB.com and Edmunds for your trade value first — dealers typically offer 10–15% below retail. Want me to set up an in-person appraisal?";
+  if(/insur/.test(q)) return "Insurance ballparks: SUVs/trucks ~$1,400–1,900/yr, sedans ~$1,200–1,500/yr. Varies by zip and driving record. Happy to fold it into a full cost breakdown.";
+  if(/test drive|appointment|schedule|visit/.test(q)) return "Sure! What day and time works for you? I'll get it on the calendar.";
+  if(/price|cost|monthly|payment/.test(q)) return "Happy to break down the full cost — payment, fuel, insurance, maintenance. Which vehicle are you curious about?";
+  if(/mpg|fuel|gas/.test(q)) return "I can pull up the most fuel-efficient options from our inventory and show real annual fuel costs. Want me to do that?";
+  if(/hi|hello|hey/.test(q) && q.length < 25) return "Hey! 👋 What kind of vehicle are you in the market for — truck, SUV, or sedan? And what's your monthly budget?";
+  return "Got it — happy to help. Want me to pull up matches from current inventory, or break down costs on something specific?";
+}
+
+function toggleWaFullscreen(){
+  const on = document.body.classList.toggle('wa-fullscreen');
+  const btn=$("waFsBtn");
+  if(btn) btn.textContent = on ? '× Exit pitch mode' : '⛶ Pitch mode';
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function esc(s){
+  return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function formatDate(ts){
+  if(!ts)return '—';
+  const d=new Date(ts);
+  const now=new Date();
+  const same=d.toDateString()===now.toDateString();
+  const time=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  if(same)return `Today, ${time}`;
+  const yesterday=new Date(now);yesterday.setDate(yesterday.getDate()-1);
+  if(d.toDateString()===yesterday.toDateString())return `Yesterday, ${time}`;
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:d.getFullYear()===now.getFullYear()?undefined:'numeric'})+`, ${time}`;
+}
+
+function toast(msg,type){
+  const c=$("toastContainer");
+  const d=document.createElement('div');
+  d.className='toast '+(type||'success');
+  d.textContent=msg;
+  c.appendChild(d);
+  setTimeout(()=>{d.classList.add('fade-out');setTimeout(()=>d.remove(),250);},2600);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+function boot(){
+  applySettings(getSettings());
+  setupDropzone();
+  resetWaDemo();
+  init();
+}
+
+boot();
 </script>
 </body>
 </html>
