@@ -441,12 +441,14 @@ body.wa-fullscreen #page-whatsapp .wa-pane{align-items:center;}
 .filter-select{background:#0a1118;border:1px solid #2a4060;border-radius:8px;padding:8px 12px;font-size:13px;color:#e4e7ee;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
 .filter-select:focus{border-color:#e8a020;}
 
-/* Login screen */
+/* Auth screen */
 .login-overlay{display:none;position:fixed;inset:0;background:#0a1118;z-index:1800;align-items:center;justify-content:center;padding:20px;}
 body.login-mode .login-overlay{display:flex;}
-body.login-mode .app,body.login-mode #dashView,body.login-mode .mode-toggle{display:none!important;}
+body.login-mode .app,body.login-mode #dashView,body.login-mode #adminView,body.login-mode .mode-toggle{display:none!important;}
 body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-start;padding:0;min-height:100vh;}
-.login-card{background:#0f1923;border:1px solid #1a2535;border-radius:14px;padding:30px 28px 26px;width:100%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.auth-step{display:none;width:100%;max-width:400px;}
+.auth-step.active{display:block;}
+.login-card{background:#0f1923;border:1px solid #1a2535;border-radius:14px;padding:30px 28px 26px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,.5);}
 .login-logo{display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #1a2535;}
 .login-logo-icon{width:46px;height:46px;background:#e8a020;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;color:#0f1923;flex-shrink:0;overflow:hidden;}
 .login-logo-icon img{width:100%;height:100%;object-fit:cover;}
@@ -455,13 +457,44 @@ body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-star
 .login-sub{font-size:11.5px;color:#7a8fa6;margin-top:3px;}
 .login-form{display:flex;flex-direction:column;gap:14px;}
 .login-form .field{margin-bottom:0;}
-.login-form input[type=password]{width:100%;background:#0a1118;border:1px solid #2a4060;border-radius:8px;padding:10px 12px;font-size:13.5px;color:#e4e7ee;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;letter-spacing:1px;}
-.login-form input[type=password]:focus{border-color:#e8a020;}
+.login-form input[type=password],.login-form input[type=email],.login-form input[type=text]{width:100%;background:#0a1118;border:1px solid #2a4060;border-radius:8px;padding:10px 12px;font-size:13.5px;color:#e4e7ee;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;}
+.login-form input:focus{border-color:#e8a020;}
 .login-err{color:#f87171;font-size:12px;margin-top:8px;display:none;line-height:1.4;}
 .login-err.show{display:block;}
+.login-ok{color:#5cd17c;font-size:12px;margin-top:8px;display:none;line-height:1.4;}
+.login-ok.show{display:block;}
 .login-btn{padding:11px;font-size:14px;width:100%;border-radius:8px;}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;}
 .login-back{padding:9px;font-size:12px;width:100%;border-radius:8px;background:transparent;color:#7a8fa6;border:1px solid #2a4060;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
 .login-back:hover{color:#e8a020;border-color:#e8a020;}
+.auth-link{background:none;border:none;color:#e8a020;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;text-align:right;width:100%;margin-top:-4px;}
+.auth-link:hover{text-decoration:underline;}
+.auth-helper{font-size:11.5px;color:#7a8fa6;text-align:center;margin-top:6px;}
+.auth-helper button{background:none;border:none;color:#e8a020;font-size:11.5px;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;}
+.auth-helper button:hover{text-decoration:underline;}
+
+/* Admin panel — reuses sidebar/main-content layout */
+#adminView{display:none;width:100%;min-height:100vh;background:#0a1118;color:#e4e7ee;}
+body.admin-mode #adminView{display:flex;}
+body.admin-mode{background:#0a1118;align-items:stretch;justify-content:flex-start;padding:0;}
+body.admin-mode .app,body.admin-mode #dashView,body.admin-mode .mode-toggle{display:none!important;}
+.admin-badge{display:inline-block;background:rgba(232,160,32,.18);color:#e8a020;font-size:9.5px;padding:2px 8px;border-radius:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-left:6px;}
+.embed-block{background:#0a1118;border:1px solid #2a4060;border-radius:10px;padding:12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;color:#e4e7ee;white-space:pre-wrap;word-break:break-all;line-height:1.55;position:relative;}
+.embed-copy{position:absolute;top:8px;right:8px;background:#e8a020;color:#0f1923;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.embed-copy:hover{background:#cf8e18;}
+.modal-form .field{margin-bottom:12px;}
+.modal-form .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid #1a2535;}
+.role-pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:9px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;}
+.role-admin{background:rgba(232,160,32,.18);color:#e8a020;}
+.role-dealer_owner{background:rgba(34,197,94,.16);color:#5cd17c;}
+.role-dealer_user{background:rgba(78,163,255,.16);color:#4ea3ff;}
+.plan-pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:9px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;background:#1a2535;color:#7a8fa6;}
+.plan-trial{background:rgba(232,160,32,.16);color:#e8a020;}
+.plan-basic{background:rgba(78,163,255,.16);color:#4ea3ff;}
+.plan-pro{background:rgba(166,107,255,.18);color:#b08cff;}
+.status-active{color:#5cd17c;font-size:12px;}
+.status-inactive{color:#f87171;font-size:12px;}
 
 /* Sidebar footer + logout */
 .sb-footer{margin-top:auto;padding:10px 10px 0;border-top:1px solid #1a2535;}
@@ -490,24 +523,172 @@ body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-star
 <body>
 
 <div class="login-overlay" id="loginView">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="login-logo-icon" id="loginLogo">A</div>
-      <div class="login-brand">
-        <div class="login-title" id="loginTitle">AutoAdvisor AI</div>
-        <div class="login-sub">Dealer dashboard sign in</div>
+  <div class="auth-step active" id="step-login">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon" id="loginLogo">A</div>
+        <div class="login-brand">
+          <div class="login-title" id="loginTitle">AutoAdvisor AI</div>
+          <div class="login-sub">Sign in to your account</div>
+        </div>
+      </div>
+      <form class="login-form" onsubmit="event.preventDefault();attemptLogin();">
+        <div class="field">
+          <label>Email</label>
+          <input id="loginEmail" type="email" placeholder="you@dealership.com" autocomplete="email" required/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="loginPw" type="password" placeholder="Your password" autocomplete="current-password" required/>
+          <div class="login-err" id="loginErr"></div>
+        </div>
+        <button type="button" class="auth-link" onclick="showAuthStep('forgot')">Forgot password?</button>
+        <button type="submit" class="btn login-btn" id="loginSubmit">Sign in</button>
+        <button type="button" class="login-back" onclick="returnToChat()">← Back to chat</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="auth-step" id="step-forgot">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">A</div>
+        <div class="login-brand">
+          <div class="login-title">Reset your password</div>
+          <div class="login-sub">We'll email you a reset link</div>
+        </div>
+      </div>
+      <form class="login-form" onsubmit="event.preventDefault();sendResetLink();">
+        <div class="field">
+          <label>Email</label>
+          <input id="forgotEmail" type="email" placeholder="you@dealership.com" autocomplete="email" required/>
+          <div class="login-err" id="forgotErr"></div>
+          <div class="login-ok" id="forgotOk"></div>
+        </div>
+        <button type="submit" class="btn login-btn" id="forgotSubmit">Send reset link</button>
+        <button type="button" class="login-back" onclick="showAuthStep('login')">← Back to sign in</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="auth-step" id="step-reset">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">A</div>
+        <div class="login-brand">
+          <div class="login-title">Set a new password</div>
+          <div class="login-sub">Choose a strong password (8+ characters)</div>
+        </div>
+      </div>
+      <form class="login-form" onsubmit="event.preventDefault();completePasswordReset();">
+        <div class="field">
+          <label>New password</label>
+          <input id="resetPw" type="password" placeholder="New password" autocomplete="new-password" required minlength="8"/>
+        </div>
+        <div class="field">
+          <label>Confirm password</label>
+          <input id="resetPwConfirm" type="password" placeholder="Confirm new password" autocomplete="new-password" required minlength="8"/>
+          <div class="login-err" id="resetErr"></div>
+          <div class="login-ok" id="resetOk"></div>
+        </div>
+        <button type="submit" class="btn login-btn" id="resetSubmit">Update password</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="adminView">
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">A</div>
+      <div>
+        <div class="sb-logo-text">AutoAdvisor AI</div>
+        <div class="sb-logo-sub">Admin panel</div>
       </div>
     </div>
-    <form class="login-form" onsubmit="event.preventDefault();attemptLogin();">
-      <div class="field">
-        <label>Password</label>
-        <input id="loginPw" type="password" placeholder="Enter password" autocomplete="current-password"/>
-        <div class="login-err" id="loginErr">Incorrect password. Please try again.</div>
+    <nav class="sb-nav">
+      <button class="sb-item active" data-admin-page="orgs" onclick="switchAdminPage('orgs')">
+        <span class="sb-icon">🏢</span><span class="sb-label">Organizations</span>
+      </button>
+      <button class="sb-item" data-admin-page="users" onclick="switchAdminPage('users')">
+        <span class="sb-icon">👤</span><span class="sb-label">Users</span>
+      </button>
+      <button class="sb-item" data-admin-page="embed" onclick="switchAdminPage('embed')">
+        <span class="sb-icon">🔗</span><span class="sb-label">Embed codes</span>
+      </button>
+      <button class="sb-item" data-admin-page="stats" onclick="switchAdminPage('stats')">
+        <span class="sb-icon">📊</span><span class="sb-label">Stats</span>
+      </button>
+    </nav>
+    <div class="sb-footer">
+      <button class="sb-item sb-logout" onclick="logout()">
+        <span class="sb-icon">⎋</span><span class="sb-label">Sign out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <section class="page active" id="admin-page-orgs">
+      <h1 class="page-title">Organizations <span class="admin-badge">Admin</span></h1>
+      <div class="page-sub">Create and manage every dealership using AutoAdvisor.</div>
+      <div class="dash-card">
+        <div class="dash-card-title">
+          <span>All dealerships</span>
+          <div class="btn-row">
+            <button class="btn btn-sm" onclick="openOrgModal()">+ New organization</button>
+          </div>
+        </div>
+        <div class="search-row">
+          <input class="search-input" id="orgSearch" placeholder="Search by name, email, plan…" oninput="renderAdminOrgs()"/>
+        </div>
+        <div id="adminOrgsTable"></div>
       </div>
-      <button type="submit" class="btn login-btn">Sign in</button>
-      <button type="button" class="login-back" onclick="returnToChat()">← Back to chat</button>
-    </form>
-  </div>
+    </section>
+
+    <section class="page" id="admin-page-users">
+      <h1 class="page-title">Users <span class="admin-badge">Admin</span></h1>
+      <div class="page-sub">Create dealer users and link them to an organization.</div>
+      <div class="dash-card">
+        <div class="dash-card-title">
+          <span>All users</span>
+          <div class="btn-row">
+            <button class="btn btn-sm" onclick="openUserModal()">+ New user</button>
+          </div>
+        </div>
+        <div class="search-row">
+          <input class="search-input" id="userSearch" placeholder="Search by name, email, org…" oninput="renderAdminUsers()"/>
+          <select class="filter-select" id="userRoleFilter" onchange="renderAdminUsers()">
+            <option value="">All roles</option>
+            <option value="admin">Admin</option>
+            <option value="dealer_owner">Dealer owner</option>
+            <option value="dealer_user">Dealer user</option>
+          </select>
+        </div>
+        <div id="adminUsersTable"></div>
+      </div>
+    </section>
+
+    <section class="page" id="admin-page-embed">
+      <h1 class="page-title">Widget embed codes <span class="admin-badge">Admin</span></h1>
+      <div class="page-sub">Drop-in HTML snippets each dealer can paste into their own website.</div>
+      <div id="adminEmbedList"></div>
+    </section>
+
+    <section class="page" id="admin-page-stats">
+      <h1 class="page-title">Platform stats <span class="admin-badge">Admin</span></h1>
+      <div class="page-sub">A quick look at growth and activity across all dealerships.</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Organizations</div><div class="kpi-val" id="statOrgs">0</div></div>
+        <div class="kpi"><div class="kpi-label">Active</div><div class="kpi-val" id="statActiveOrgs">0</div><div class="kpi-sub">status = active</div></div>
+        <div class="kpi"><div class="kpi-label">On trial</div><div class="kpi-val" id="statTrialOrgs">0</div><div class="kpi-sub">plan = trial</div></div>
+        <div class="kpi"><div class="kpi-label">Users</div><div class="kpi-val" id="statUsers">0</div></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">By plan</div>
+        <div id="statPlans"></div>
+      </div>
+    </section>
+  </main>
 </div>
 
 <button class="mode-toggle" id="modeToggle" onclick="toggleMode()">
@@ -576,6 +757,9 @@ body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-star
       </button>
       <button class="sb-item" data-page="whatsapp" onclick="switchPage('whatsapp')">
         <span class="sb-icon">📱</span><span class="sb-label">WhatsApp Demo</span>
+      </button>
+      <button class="sb-item" data-page="widget" onclick="switchPage('widget')">
+        <span class="sb-icon">🔗</span><span class="sb-label">Widget</span>
       </button>
       <button class="sb-item" data-page="settings" onclick="switchPage('settings')">
         <span class="sb-icon">⚙</span><span class="sb-label">Settings</span>
@@ -674,6 +858,43 @@ body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-star
       </div>
     </section>
 
+    <section class="page" id="page-widget">
+      <h1 class="page-title">Website Widget</h1>
+      <div class="page-sub">Add the AutoAdvisor chat widget to your dealership website with one script tag.</div>
+      <div class="dash-card">
+        <div class="dash-card-title">Your embed code</div>
+        <div class="field-hint" style="margin-bottom:10px;">Paste this just before the closing <code>&lt;/body&gt;</code> tag on any page of your website. The widget will appear in the bottom-right corner.</div>
+        <div class="embed-block" id="dealerEmbedCode">Loading…</div>
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn btn-sm" onclick="copyDealerEmbed()">Copy embed code</button>
+          <button class="btn btn-ghost btn-sm" onclick="previewWidget()">Preview on this page</button>
+        </div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">How it works</div>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-icon">🌐</div>
+            <div class="step-title">Visitor lands on your site</div>
+            <div class="step-text">The chat bubble appears in the corner using your brand color.</div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-icon">🤖</div>
+            <div class="step-title">AutoAdvisor handles the chat</div>
+            <div class="step-text">Pulls from your live inventory and answers honestly — no scripts, no pressure.</div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-icon">🔔</div>
+            <div class="step-title">Leads land in your dashboard</div>
+            <div class="step-text">Captured leads + transcripts show up automatically in the Conversations tab.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="page" id="page-settings">
       <h1 class="page-title">Settings</h1>
       <div class="page-sub">Customize your dealership branding and AI configuration.</div>
@@ -759,24 +980,6 @@ body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-star
         </div>
       </div>
 
-      <div class="dash-card">
-        <div class="dash-card-title">Supabase (Conversations)</div>
-        <div class="field">
-          <label>Supabase URL</label>
-          <input id="setSupabaseUrl" type="text" placeholder="https://xxxx.supabase.co" autocomplete="off"/>
-          <div class="field-hint">Project URL from Supabase → Settings → API.</div>
-        </div>
-        <div class="field">
-          <label>Anon (public) key</label>
-          <input id="setSupabaseKey" type="password" placeholder="eyJhbGci..." autocomplete="off"/>
-          <div class="field-hint">Public anon key. Stored locally in your browser — never the service-role key.</div>
-        </div>
-        <div class="btn-row">
-          <button class="btn" onclick="saveSupabaseConfig()">Save Supabase config</button>
-          <button class="btn btn-ghost" onclick="clearSupabaseConfig()">Clear</button>
-          <button class="btn btn-ghost" onclick="testSupabaseConfig()">Test connection</button>
-        </div>
-      </div>
     </section>
 
     <section class="page" id="page-whatsapp">
@@ -1210,72 +1413,258 @@ function trackQuestion(text){
 }
 
 // ============================================================
-// MODE TOGGLE & NAVIGATION
+// SUPABASE AUTH CONFIG — paste your project URL + anon key here.
+// The anon key is safe in the browser. NEVER paste the service-role key.
+// ============================================================
+const SUPABASE_PROJECT_URL = 'https://rjfkrzyqegimwepqnger.supabase.co';
+const SUPABASE_ANON_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqZmtyenlxZWdpbXdlcHFuZ2VyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzE4NTcsImV4cCI6MjA5NDIwNzg1N30.NLko5SMA8sy1lVs-sDtn5ZJ1g-qhumKe9RBAYIM7BwY';
+
+let sbAuth = null;
+let currentUser = null;
+let currentProfile = null;   // { id, role, organization_id, full_name, email }
+let currentOrg = null;       // organizations row (for dealers)
+let authBooted = false;
+let bootingProfile = false;
+
+function isSupabaseConfigured(){
+  return SUPABASE_PROJECT_URL && SUPABASE_PROJECT_URL.indexOf('PASTE_') !== 0
+      && SUPABASE_ANON_KEY && SUPABASE_ANON_KEY.indexOf('PASTE_') !== 0;
+}
+
+function initAuthClient(){
+  if(sbAuth) return sbAuth;
+  if(!isSupabaseConfigured()) return null;
+  if(!window.supabase || !window.supabase.createClient) return null;
+  sbAuth = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY, {
+    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}
+  });
+  sbAuth.auth.onAuthStateChange((event, session)=>{
+    if(event==='PASSWORD_RECOVERY'){ showAuthStep('reset'); document.body.classList.add('login-mode'); return; }
+    if(event==='SIGNED_OUT'){ handleSignedOut(); return; }
+    if((event==='SIGNED_IN' || event==='INITIAL_SESSION' || event==='TOKEN_REFRESHED') && session && session.user){
+      if(!currentUser || currentUser.id !== session.user.id){ handleSignedIn(session.user); }
+    }
+  });
+  return sbAuth;
+}
+
+async function bootAuth(){
+  if(authBooted) return;
+  authBooted = true;
+  const client = initAuthClient();
+  if(!client){
+    if(!isSupabaseConfigured()){
+      showAuthConfigError();
+    }
+    return;
+  }
+  // Detect password-recovery via hash (older Supabase email links)
+  if(location.hash.indexOf('type=recovery')!==-1){
+    showAuthStep('reset');
+    document.body.classList.add('login-mode');
+  }
+  try{
+    const { data:{ session } } = await client.auth.getSession();
+    if(session && session.user){ await handleSignedIn(session.user); }
+  }catch(e){ console.warn('bootAuth getSession failed', e); }
+}
+
+function showAuthConfigError(){
+  const err = document.getElementById('loginErr');
+  if(err){ err.textContent='Supabase not configured. Paste your project URL and anon key into index.html.'; err.classList.add('show'); }
+  document.body.classList.add('login-mode');
+}
+
+async function handleSignedIn(user){
+  if(bootingProfile) return;
+  bootingProfile = true;
+  currentUser = user;
+  try{
+    const { data:profile, error } = await sbAuth.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if(error){ throw error; }
+    if(!profile){
+      currentProfile = null;
+      await sbAuth.auth.signOut();
+      const err = document.getElementById('loginErr');
+      if(err){ err.textContent = 'Account not set up. Please contact your administrator.'; err.classList.add('show'); }
+      showAuthStep('login');
+      document.body.classList.add('login-mode');
+      return;
+    }
+    currentProfile = profile;
+    if(profile.role !== 'admin' && profile.organization_id){
+      const { data:org } = await sbAuth.from('organizations').select('*').eq('id', profile.organization_id).maybeSingle();
+      currentOrg = org || null;
+      if(currentOrg){ applyOrgBranding(currentOrg); }
+    } else {
+      currentOrg = null;
+    }
+    document.body.classList.remove('login-mode');
+    if(profile.role === 'admin'){ enterAdminPanel(); }
+    else if(profile.role === 'dealer_owner' || profile.role === 'dealer_user'){ enterDealerDashboard(); }
+    else {
+      await sbAuth.auth.signOut();
+      const err = document.getElementById('loginErr');
+      if(err){ err.textContent='Unknown role on profile. Contact admin.'; err.classList.add('show'); }
+      showAuthStep('login');
+      document.body.classList.add('login-mode');
+    }
+  }catch(err){
+    console.error('handleSignedIn', err);
+    const el = document.getElementById('loginErr');
+    if(el){ el.textContent='Failed to load your profile: '+(err.message||err); el.classList.add('show'); }
+    showAuthStep('login');
+    document.body.classList.add('login-mode');
+  } finally { bootingProfile = false; }
+}
+
+function handleSignedOut(){
+  currentUser = null;
+  currentProfile = null;
+  currentOrg = null;
+  teardownConversationsRealtime();
+  document.body.classList.remove('dash-mode','admin-mode');
+  document.body.classList.add('login-mode');
+  showAuthStep('login');
+  const $modeText = document.getElementById('modeText');
+  const $modeIcon = document.getElementById('modeIcon');
+  if($modeText) $modeText.textContent='Dealer Dashboard';
+  if($modeIcon) $modeIcon.textContent='⊞';
+}
+
+function applyOrgBranding(org){
+  if(!org) return;
+  const merged = {...getSettings(),
+    dealerName: org.name || 'AutoAdvisor AI',
+    brandColor: org.primary_color || '#e8a020',
+    logoUrl: org.logo_url || ''
+  };
+  setSettings(merged);
+  applySettings(merged);
+}
+
+// ============================================================
+// AUTH UI — login / forgot / reset
+// ============================================================
+function showAuthStep(step){
+  ['login','forgot','reset'].forEach(s=>{
+    const el=document.getElementById('step-'+s);
+    if(el) el.classList.toggle('active', s===step);
+  });
+  ['loginErr','forgotErr','resetErr','forgotOk','resetOk'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.remove('show');
+  });
+}
+
+async function attemptLogin(){
+  const email = ($("loginEmail")?.value||'').trim();
+  const password = $("loginPw")?.value||'';
+  const errEl = $("loginErr");
+  const btn = $("loginSubmit");
+  if(!email || !password){ if(errEl){errEl.textContent='Email and password required.';errEl.classList.add('show');} return; }
+  const client = initAuthClient();
+  if(!client){ showAuthConfigError(); return; }
+  btn.disabled = true; btn.textContent='Signing in…';
+  try{
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if(error) throw error;
+    if(errEl) errEl.classList.remove('show');
+  }catch(err){
+    if(errEl){ errEl.textContent = err.message || 'Sign in failed'; errEl.classList.add('show'); }
+    const pw=$("loginPw"); if(pw){pw.value='';pw.focus();}
+  }finally{ btn.disabled=false; btn.textContent='Sign in'; }
+}
+
+async function sendResetLink(){
+  const email = ($("forgotEmail")?.value||'').trim();
+  const errEl = $("forgotErr"); const okEl = $("forgotOk"); const btn=$("forgotSubmit");
+  if(!email){ if(errEl){errEl.textContent='Enter your email.';errEl.classList.add('show');} return; }
+  const client = initAuthClient();
+  if(!client){ showAuthConfigError(); return; }
+  btn.disabled = true; btn.textContent='Sending…';
+  try{
+    const redirectTo = location.origin + location.pathname + '#type=recovery';
+    const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+    if(error) throw error;
+    if(errEl) errEl.classList.remove('show');
+    if(okEl){ okEl.textContent='Check your email for a reset link.'; okEl.classList.add('show'); }
+  }catch(err){
+    if(errEl){ errEl.textContent = err.message || 'Could not send reset email'; errEl.classList.add('show'); }
+  }finally{ btn.disabled=false; btn.textContent='Send reset link'; }
+}
+
+async function completePasswordReset(){
+  const pw = $("resetPw")?.value||'';
+  const confirm = $("resetPwConfirm")?.value||'';
+  const errEl = $("resetErr"); const okEl = $("resetOk"); const btn=$("resetSubmit");
+  if(pw.length < 8){ if(errEl){errEl.textContent='Password must be at least 8 characters.';errEl.classList.add('show');} return; }
+  if(pw !== confirm){ if(errEl){errEl.textContent='Passwords do not match.';errEl.classList.add('show');} return; }
+  const client = initAuthClient();
+  if(!client){ showAuthConfigError(); return; }
+  btn.disabled = true; btn.textContent='Updating…';
+  try{
+    const { error } = await client.auth.updateUser({ password: pw });
+    if(error) throw error;
+    if(okEl){ okEl.textContent='Password updated. You can now sign in.'; okEl.classList.add('show'); }
+    if(errEl) errEl.classList.remove('show');
+    await client.auth.signOut();
+    if(history.replaceState){ history.replaceState(null, '', location.pathname); }
+    setTimeout(()=>{ showAuthStep('login'); }, 1200);
+  }catch(err){
+    if(errEl){ errEl.textContent = err.message || 'Could not update password'; errEl.classList.add('show'); }
+  }finally{ btn.disabled=false; btn.textContent='Update password'; }
+}
+
+function returnToChat(){
+  document.body.classList.remove('login-mode');
+  ['loginErr','forgotErr','resetErr'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
+  showAuthStep('login');
+}
+
+async function logout(){
+  if(sbAuth){ try{ await sbAuth.auth.signOut(); }catch(e){} }
+  handleSignedOut();
+  toast('Signed out','success');
+}
+
+function showLogin(){
+  document.body.classList.remove('dash-mode','admin-mode');
+  document.body.classList.add('login-mode');
+  showAuthStep('login');
+  const email=$("loginEmail"); if(email){setTimeout(()=>email.focus(),60);}
+}
+
+// ============================================================
+// MODE TOGGLE & VIEW SWITCHING
 // ============================================================
 function toggleMode(){
-  if(document.body.classList.contains('dash-mode')){
-    document.body.classList.remove('dash-mode');
+  if(document.body.classList.contains('dash-mode') || document.body.classList.contains('admin-mode')){
+    document.body.classList.remove('dash-mode','admin-mode');
+    teardownConversationsRealtime();
     $("modeText").textContent='Dealer Dashboard';
     $("modeIcon").textContent='⊞';
     return;
   }
-  if(!isAuthed()){
-    showLogin();
-    return;
-  }
-  enterDashboard();
+  if(!currentProfile){ showLogin(); return; }
+  if(currentProfile.role === 'admin') enterAdminPanel();
+  else enterDealerDashboard();
 }
 
-function enterDashboard(){
-  document.body.classList.remove('login-mode');
+function enterDealerDashboard(){
+  document.body.classList.remove('login-mode','admin-mode');
   document.body.classList.add('dash-mode');
   $("modeText").textContent='Back to chat';
   $("modeIcon").textContent='💬';
   renderCurrentPage();
 }
 
-// ============================================================
-// AUTH
-// ============================================================
-const AUTH_PW='Abby2026!x';
-const AUTH_KEY='autoadvisor_auth';
-
-function isAuthed(){
-  try{return sessionStorage.getItem(AUTH_KEY)==='true';}catch(e){return false;}
-}
-
-function showLogin(){
-  document.body.classList.remove('dash-mode');
-  document.body.classList.add('login-mode');
-  const err=$("loginErr");if(err)err.classList.remove('show');
-  const pw=$("loginPw");if(pw){pw.value='';setTimeout(()=>pw.focus(),60);}
-}
-
-function attemptLogin(){
-  const pw=$("loginPw")?.value||'';
-  if(pw===AUTH_PW){
-    try{sessionStorage.setItem(AUTH_KEY,'true');}catch(e){}
-    const err=$("loginErr");if(err)err.classList.remove('show');
-    enterDashboard();
-    toast('Signed in','success');
-  }else{
-    const err=$("loginErr");if(err)err.classList.add('show');
-    const inp=$("loginPw");if(inp){inp.value='';inp.focus();}
-  }
-}
-
-function returnToChat(){
-  document.body.classList.remove('login-mode');
-  const err=$("loginErr");if(err)err.classList.remove('show');
-}
-
-function logout(){
-  try{sessionStorage.removeItem(AUTH_KEY);}catch(e){}
-  document.body.classList.remove('dash-mode');
-  $("modeText").textContent='Dealer Dashboard';
-  $("modeIcon").textContent='⊞';
-  showLogin();
-  toast('Logged out','success');
+function enterAdminPanel(){
+  document.body.classList.remove('login-mode','dash-mode');
+  document.body.classList.add('admin-mode');
+  $("modeText").textContent='Back to chat';
+  $("modeIcon").textContent='💬';
+  switchAdminPage('orgs');
 }
 
 function switchPage(page){
@@ -1285,7 +1674,7 @@ function switchPage(page){
 }
 
 function renderCurrentPage(){
-  const active=document.querySelector('.page.active');
+  const active=document.querySelector('#dashView .page.active');
   if(!active)return;
   const id=active.id;
   if(id==='page-leads')renderLeads();
@@ -1294,6 +1683,7 @@ function renderCurrentPage(){
   else if(id==='page-analytics')renderAnalytics();
   else if(id==='page-settings')renderSettings();
   else if(id==='page-whatsapp')renderWaSim();
+  else if(id==='page-widget')renderWidgetPage();
   if(id!=='page-conversations')teardownConversationsRealtime();
 }
 
@@ -1646,8 +2036,6 @@ function renderSettings(){
   $("setBrandColor").value=s.brandColor||'#e8a020';
   $("setLogoUrl").value=s.logoUrl||'';
   $("setApiKey").value=s.apiKey||'';
-  if($("setSupabaseUrl")) $("setSupabaseUrl").value=s.supabaseUrl||'';
-  if($("setSupabaseKey")) $("setSupabaseKey").value=s.supabaseKey||'';
   updateMiniPreview(s);
 }
 
@@ -1996,55 +2384,12 @@ function toggleWaFullscreen(){
   if(btn) btn.textContent = on ? '× Exit pitch mode' : '⛶ Pitch mode';
 }
 
-// ============================================================
-// SUPABASE CONFIG (stored in localStorage, used by Conversations)
-// ============================================================
-function saveSupabaseConfig(){
-  const url=$("setSupabaseUrl").value.trim();
-  const key=$("setSupabaseKey").value.trim();
-  const current=getSettings();
-  setSettings({...current,supabaseUrl:url,supabaseKey:key});
-  resetSupabaseClient();
-  toast(url&&key?'Supabase config saved':'Supabase config cleared','success');
-}
-
-function clearSupabaseConfig(){
-  if(!confirm('Clear the saved Supabase URL and anon key?'))return;
-  $("setSupabaseUrl").value='';
-  $("setSupabaseKey").value='';
-  saveSupabaseConfig();
-}
-
-async function testSupabaseConfig(){
-  const url=$("setSupabaseUrl").value.trim();
-  const key=$("setSupabaseKey").value.trim();
-  if(!url||!key){toast('Enter both URL and anon key','error');return;}
-  if(!window.supabase||!window.supabase.createClient){toast('Supabase library not loaded','error');return;}
-  try{
-    const client=window.supabase.createClient(url,key);
-    const {error}=await client.from('conversations').select('id',{count:'exact',head:true}).limit(1);
-    if(error)throw error;
-    toast('Connected to Supabase ✓','success');
-  }catch(err){
-    toast('Connection failed: '+(err.message||err),'error');
-  }
-}
-
-let _sbClient=null;
 function getSupabaseClient(){
-  const s=getSettings();
-  if(!s.supabaseUrl||!s.supabaseKey)return null;
-  if(!window.supabase||!window.supabase.createClient)return null;
-  if(_sbClient&&_sbClient.__url===s.supabaseUrl&&_sbClient.__key===s.supabaseKey)return _sbClient;
-  _sbClient=window.supabase.createClient(s.supabaseUrl,s.supabaseKey);
-  _sbClient.__url=s.supabaseUrl;
-  _sbClient.__key=s.supabaseKey;
-  return _sbClient;
+  return initAuthClient();
 }
 function resetSupabaseClient(){
   teardownConversationsRealtime();
-  _sbClient=null;
-  if(document.querySelector('.page.active')?.id==='page-conversations')openConversationsPage();
+  if(document.querySelector('#dashView .page.active')?.id==='page-conversations')openConversationsPage();
 }
 
 // ============================================================
@@ -2112,11 +2457,15 @@ async function loadConversations(){
   const client=getSupabaseClient();
   if(!client)return;
   try{
-    const {data,error}=await client
+    let q = client
       .from('conversations')
       .select('id,customer_phone,channel,organization_id,created_at,last_message_at')
       .order('last_message_at',{ascending:false,nullsFirst:false})
       .limit(200);
+    if(currentProfile && currentProfile.role !== 'admin' && currentProfile.organization_id){
+      q = q.eq('organization_id', currentProfile.organization_id);
+    }
+    const {data,error}=await q;
     if(error)throw error;
     convState.conversations=data||[];
     await loadLeadsForConversations();
@@ -2410,6 +2759,369 @@ function truncate(s,n){
 }
 
 // ============================================================
+// ADMIN PANEL
+// ============================================================
+let adminState = { orgs:[], users:[], userOrgFilter:'' };
+
+function switchAdminPage(page){
+  document.querySelectorAll('#adminView .sb-item').forEach(b=>b.classList.toggle('active', b.dataset.adminPage===page));
+  document.querySelectorAll('#adminView .page').forEach(p=>p.classList.toggle('active', p.id==='admin-page-'+page));
+  if(page==='orgs')loadAdminOrgs();
+  else if(page==='users'){loadAdminOrgs().then(loadAdminUsers);}
+  else if(page==='embed')loadAdminOrgs().then(renderEmbedList);
+  else if(page==='stats')loadAdminStats();
+}
+
+async function loadAdminOrgs(){
+  const client = getSupabaseClient();
+  if(!client) return;
+  const { data, error } = await client.from('organizations').select('*').order('created_at',{ascending:false});
+  if(error){ toast('Failed to load orgs: '+error.message,'error'); return; }
+  adminState.orgs = data || [];
+  if(document.getElementById('admin-page-orgs')?.classList.contains('active')) renderAdminOrgs();
+}
+
+function renderAdminOrgs(){
+  const el = $("adminOrgsTable");
+  if(!el) return;
+  const q = ($("orgSearch")?.value||'').toLowerCase().trim();
+  let items = adminState.orgs.slice();
+  if(q) items = items.filter(o => [o.name,o.email,o.plan,o.status].some(v=>(v||'').toString().toLowerCase().includes(q)));
+  if(!items.length){
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🏢</div>${adminState.orgs.length?'No orgs match your search.':'No organizations yet. Click "+ New organization" to create one.'}</div>`;
+    return;
+  }
+  const rows = items.map(o=>`
+    <tr>
+      <td><strong>${esc(o.name||'—')}</strong></td>
+      <td>${esc(o.email||'—')}</td>
+      <td>${esc(o.phone||'—')}</td>
+      <td><span class="plan-pill plan-${esc((o.plan||'trial').toLowerCase())}">${esc(o.plan||'trial')}</span></td>
+      <td><span class="${o.status==='active'?'status-active':'status-inactive'}">${esc(o.status||'inactive')}</span></td>
+      <td style="white-space:nowrap;">
+        <span style="display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:middle;background:${esc(o.primary_color||'#e8a020')};margin-right:6px;"></span>
+        <span style="font-size:11px;color:#7a8fa6;">${esc(o.primary_color||'')}</span>
+      </td>
+      <td>
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-sm" onclick='openOrgModal(${JSON.stringify(o.id)})'>Edit</button>
+          <button class="btn btn-ghost btn-sm btn-danger" onclick='deleteOrg(${JSON.stringify(o.id)})'>Delete</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Plan</th><th>Status</th><th>Brand</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function openOrgModal(orgId){
+  const existing = orgId ? adminState.orgs.find(o=>o.id===orgId) : null;
+  $("modalTitle").textContent = existing ? 'Edit organization' : 'New organization';
+  $("modalSub").textContent = existing ? esc(existing.name||'') : 'Add a new dealership to AutoAdvisor.';
+  $("modalBody").innerHTML = `
+    <div class="modal-form">
+      <div class="field"><label>Dealership name *</label><input id="orgName" type="text" value="${esc(existing?.name||'')}" required/></div>
+      <div class="field-row">
+        <div class="field"><label>Email</label><input id="orgEmail" type="email" value="${esc(existing?.email||'')}"/></div>
+        <div class="field"><label>Phone</label><input id="orgPhone" type="text" value="${esc(existing?.phone||'')}"/></div>
+      </div>
+      <div class="field"><label>Website</label><input id="orgWebsite" type="text" placeholder="https://example.com" value="${esc(existing?.website||'')}"/></div>
+      <div class="field-row">
+        <div class="field"><label>Plan</label>
+          <select id="orgPlan" class="filter-select" style="width:100%;">
+            <option value="trial" ${(existing?.plan||'trial')==='trial'?'selected':''}>Trial</option>
+            <option value="basic" ${existing?.plan==='basic'?'selected':''}>Basic</option>
+            <option value="pro" ${existing?.plan==='pro'?'selected':''}>Pro</option>
+          </select>
+        </div>
+        <div class="field"><label>Status</label>
+          <select id="orgStatus" class="filter-select" style="width:100%;">
+            <option value="active" ${(existing?.status||'active')==='active'?'selected':''}>Active</option>
+            <option value="paused" ${existing?.status==='paused'?'selected':''}>Paused</option>
+            <option value="cancelled" ${existing?.status==='cancelled'?'selected':''}>Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Primary color</label><input id="orgColor" type="color" value="${esc(existing?.primary_color||'#e8a020')}"/></div>
+        <div class="field"><label>Logo URL</label><input id="orgLogo" type="text" value="${esc(existing?.logo_url||'')}"/></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn" id="orgSaveBtn" onclick='saveOrg(${JSON.stringify(orgId||null)})'>${existing?'Save changes':'Create organization'}</button>
+      </div>
+    </div>`;
+  $("modalOverlay").classList.add('active');
+}
+
+async function saveOrg(orgId){
+  const client = getSupabaseClient();
+  if(!client) return;
+  const payload = {
+    name: $("orgName").value.trim(),
+    email: $("orgEmail").value.trim() || null,
+    phone: $("orgPhone").value.trim() || null,
+    website: $("orgWebsite").value.trim() || null,
+    plan: $("orgPlan").value,
+    status: $("orgStatus").value,
+    primary_color: $("orgColor").value,
+    logo_url: $("orgLogo").value.trim() || null
+  };
+  if(!payload.name){ toast('Name is required','error'); return; }
+  const btn = $("orgSaveBtn"); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    if(orgId){
+      const { error } = await client.from('organizations').update(payload).eq('id', orgId);
+      if(error) throw error;
+      toast('Organization updated','success');
+    } else {
+      const { error } = await client.from('organizations').insert(payload);
+      if(error) throw error;
+      toast('Organization created','success');
+    }
+    closeModal();
+    await loadAdminOrgs();
+  }catch(err){
+    toast('Save failed: '+(err.message||err),'error');
+  }finally{ if(btn){btn.disabled=false;} }
+}
+
+async function deleteOrg(orgId){
+  const org = adminState.orgs.find(o=>o.id===orgId);
+  if(!org) return;
+  if(!confirm(`Delete "${org.name}"? Linked users will be unassigned but not deleted.`)) return;
+  const client = getSupabaseClient();
+  try{
+    const { error } = await client.from('organizations').delete().eq('id', orgId);
+    if(error) throw error;
+    toast('Organization deleted','success');
+    await loadAdminOrgs();
+    renderAdminOrgs();
+  }catch(err){
+    toast('Delete failed: '+(err.message||err),'error');
+  }
+}
+
+async function loadAdminUsers(){
+  const client = getSupabaseClient();
+  if(!client) return;
+  const { data, error } = await client.from('profiles').select('*').order('created_at',{ascending:false});
+  if(error){ toast('Failed to load users: '+error.message,'error'); return; }
+  adminState.users = data || [];
+  if(document.getElementById('admin-page-users')?.classList.contains('active')) renderAdminUsers();
+}
+
+function renderAdminUsers(){
+  const el = $("adminUsersTable");
+  if(!el) return;
+  const q = ($("userSearch")?.value||'').toLowerCase().trim();
+  const roleFilter = $("userRoleFilter")?.value||'';
+  const orgsById = Object.fromEntries(adminState.orgs.map(o=>[o.id,o]));
+  let items = adminState.users.slice();
+  if(roleFilter) items = items.filter(u=>u.role===roleFilter);
+  if(q) items = items.filter(u=>{
+    const org = orgsById[u.organization_id];
+    return [u.full_name,u.email,u.role, org?.name].some(v=>(v||'').toString().toLowerCase().includes(q));
+  });
+  if(!items.length){
+    el.innerHTML = `<div class="empty"><div class="empty-icon">👤</div>${adminState.users.length?'No users match your filters.':'No users yet. Click "+ New user" to create one.'}</div>`;
+    return;
+  }
+  const rows = items.map(u=>{
+    const org = orgsById[u.organization_id];
+    return `<tr>
+      <td><strong>${esc(u.full_name||'—')}</strong></td>
+      <td>${esc(u.email||'—')}</td>
+      <td><span class="role-pill role-${esc(u.role||'')}">${esc((u.role||'').replace('_',' '))}</span></td>
+      <td>${esc(org?.name||(u.role==='admin'?'—':'(unassigned)'))}</td>
+      <td>${formatDate(u.created_at)}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm btn-danger" onclick='deleteUser(${JSON.stringify(u.id)},${JSON.stringify(u.full_name||u.email||"user")})'>Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Organization</th><th>Created</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function openUserModal(){
+  if(!adminState.orgs.length){ toast('Create at least one organization first','error'); return; }
+  const orgOptions = adminState.orgs.map(o=>`<option value="${esc(o.id)}">${esc(o.name)}</option>`).join('');
+  $("modalTitle").textContent = 'New user';
+  $("modalSub").textContent = 'Creates a Supabase auth user and a profile row.';
+  $("modalBody").innerHTML = `
+    <div class="modal-form">
+      <div class="field"><label>Full name *</label><input id="newUserName" type="text" required/></div>
+      <div class="field"><label>Email *</label><input id="newUserEmail" type="email" required/></div>
+      <div class="field"><label>Temporary password *</label><input id="newUserPw" type="text" placeholder="At least 8 characters" required minlength="8"/>
+        <div class="field-hint">The user can change this after their first login or via "Forgot password".</div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Role</label>
+          <select id="newUserRole" class="filter-select" style="width:100%;" onchange="toggleNewUserOrg()">
+            <option value="dealer_owner">Dealer owner</option>
+            <option value="dealer_user">Dealer user</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="field" id="newUserOrgWrap"><label>Organization</label>
+          <select id="newUserOrg" class="filter-select" style="width:100%;">${orgOptions}</select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn" id="userSaveBtn" onclick="saveNewUser()">Create user</button>
+      </div>
+    </div>`;
+  $("modalOverlay").classList.add('active');
+}
+
+function toggleNewUserOrg(){
+  const role = $("newUserRole").value;
+  const wrap = $("newUserOrgWrap");
+  if(wrap) wrap.style.display = role==='admin' ? 'none' : '';
+}
+
+async function saveNewUser(){
+  const fullName = $("newUserName").value.trim();
+  const email = $("newUserEmail").value.trim().toLowerCase();
+  const password = $("newUserPw").value;
+  const role = $("newUserRole").value;
+  const organizationId = role==='admin' ? null : $("newUserOrg").value;
+  if(!fullName || !email || !password){ toast('All fields are required','error'); return; }
+  if(password.length < 8){ toast('Password must be at least 8 characters','error'); return; }
+  const btn = $("userSaveBtn"); btn.disabled=true; btn.textContent='Creating…';
+  try{
+    const { data:{ session } } = await sbAuth.auth.getSession();
+    const token = session?.access_token;
+    if(!token) throw new Error('Not signed in');
+    const res = await fetch('/api/admin-create-user', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+      body: JSON.stringify({ email, password, fullName, role, organizationId })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Create user failed');
+    toast('User created','success');
+    closeModal();
+    await loadAdminUsers();
+  }catch(err){
+    toast('Failed to create user: '+(err.message||err),'error');
+  }finally{ if(btn){btn.disabled=false;btn.textContent='Create user';} }
+}
+
+async function deleteUser(userId, label){
+  if(!confirm(`Delete user "${label}"? This removes their account and profile.`)) return;
+  try{
+    const { data:{ session } } = await sbAuth.auth.getSession();
+    const token = session?.access_token;
+    if(!token) throw new Error('Not signed in');
+    const res = await fetch('/api/admin-delete-user', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+      body: JSON.stringify({ userId })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Delete user failed');
+    toast('User deleted','success');
+    await loadAdminUsers();
+  }catch(err){
+    toast('Failed to delete user: '+(err.message||err),'error');
+  }
+}
+
+function renderEmbedList(){
+  const el = $("adminEmbedList");
+  if(!el) return;
+  if(!adminState.orgs.length){
+    el.innerHTML = `<div class="dash-card"><div class="empty"><div class="empty-icon">🔗</div>Create an organization first to generate its embed code.</div></div>`;
+    return;
+  }
+  el.innerHTML = adminState.orgs.map(o=>{
+    const snippet = buildEmbedSnippet(o.id, o.primary_color||'#e8a020');
+    const sid = 'embed-'+o.id;
+    return `<div class="dash-card">
+      <div class="dash-card-title">
+        <span>${esc(o.name||'')} <span class="plan-pill plan-${esc((o.plan||'trial').toLowerCase())}" style="margin-left:8px;">${esc(o.plan||'trial')}</span></span>
+        <div class="btn-row"><button class="btn btn-sm" onclick="copyEmbed('${sid}')">Copy</button></div>
+      </div>
+      <div class="field-hint" style="margin-bottom:8px;">Organization ID: <code>${esc(o.id)}</code></div>
+      <div class="embed-block" id="${sid}">${esc(snippet)}</div>
+    </div>`;
+  }).join('');
+}
+
+function buildEmbedSnippet(orgId, color){
+  return `<script>\n  window.AutoAdvisorConfig = {\n    dealerId: "${orgId}",\n    primaryColor: "${color}"\n  };\n<\/script>\n<script src="${location.origin}/widget.js"><\/script>`;
+}
+
+function copyEmbed(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const text = el.textContent;
+  navigator.clipboard.writeText(text).then(()=>toast('Embed code copied','success')).catch(()=>toast('Copy failed — select & copy manually','error'));
+}
+
+async function loadAdminStats(){
+  const client = getSupabaseClient();
+  if(!client) return;
+  if(!adminState.orgs.length) await loadAdminOrgs();
+  if(!adminState.users.length) await loadAdminUsers();
+  const orgs = adminState.orgs;
+  const users = adminState.users;
+  $("statOrgs").textContent = orgs.length;
+  $("statActiveOrgs").textContent = orgs.filter(o=>o.status==='active').length;
+  $("statTrialOrgs").textContent = orgs.filter(o=>o.plan==='trial').length;
+  $("statUsers").textContent = users.length;
+  const planCounts = {};
+  orgs.forEach(o=>{const p=o.plan||'trial';planCounts[p]=(planCounts[p]||0)+1;});
+  const entries = Object.entries(planCounts);
+  if(!entries.length){
+    $("statPlans").innerHTML = `<div class="empty">No organizations yet.</div>`;
+  } else {
+    $("statPlans").innerHTML = `<div class="q-list">` + entries.map(([plan,count])=>`
+      <div class="q-item">
+        <span class="q-text"><span class="plan-pill plan-${esc(plan)}">${esc(plan)}</span></span>
+        <span class="q-count">${count} org${count===1?'':'s'}</span>
+      </div>`).join('') + `</div>`;
+  }
+}
+
+// ============================================================
+// DEALER WIDGET PAGE
+// ============================================================
+function renderWidgetPage(){
+  const el = $("dealerEmbedCode");
+  if(!el) return;
+  if(!currentOrg){
+    el.textContent = '(No organization assigned — contact your administrator.)';
+    return;
+  }
+  const color = currentOrg.primary_color || '#e8a020';
+  el.textContent = buildEmbedSnippet(currentOrg.id, color);
+}
+
+function copyDealerEmbed(){
+  const el = $("dealerEmbedCode");
+  if(!el) return;
+  navigator.clipboard.writeText(el.textContent).then(()=>toast('Embed code copied','success')).catch(()=>toast('Copy failed','error'));
+}
+
+function previewWidget(){
+  if(!currentOrg){ toast('No organization assigned','error'); return; }
+  if(document.querySelector('script[data-aa-preview]')){ toast('Widget already loaded — bubble is in the bottom-right','success'); return; }
+  window.AutoAdvisorConfig = { dealerId: currentOrg.id, primaryColor: currentOrg.primary_color||'#e8a020' };
+  const s = document.createElement('script');
+  s.src = '/widget.js';
+  s.setAttribute('data-aa-preview','1');
+  document.body.appendChild(s);
+  toast('Widget loaded — look in the bottom-right corner','success');
+}
+
+// ============================================================
 // HELPERS
 // ============================================================
 function esc(s){
@@ -2445,6 +3157,7 @@ function boot(){
   setupDropzone();
   resetWaDemo();
   init();
+  bootAuth();
 }
 
 boot();
