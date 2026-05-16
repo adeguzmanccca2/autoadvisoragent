@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>AutoAdvisor AI — Dealer Demo</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
@@ -228,6 +229,64 @@ body.dash-mode #dashView{display:flex;}
   .brand-grid{grid-template-columns:1fr;}
   .brand-preview-wrap{position:static;}
 }
+
+/* Conversations page */
+.conv-wrap{display:grid;grid-template-columns:340px 1fr;gap:0;background:#0f1923;border:1px solid #1a2535;border-radius:12px;overflow:hidden;height:calc(100vh - 170px);min-height:520px;}
+.conv-left{border-right:1px solid #1a2535;display:flex;flex-direction:column;min-height:0;background:#0a1118;}
+.conv-toolbar{padding:12px;border-bottom:1px solid #1a2535;display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
+.conv-toolbar .search-input{width:100%;}
+.conv-filters{display:flex;gap:6px;flex-wrap:wrap;}
+.conv-chip{background:#0f1923;border:1px solid #2a4060;color:#7a8fa6;border-radius:14px;padding:4px 11px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.conv-chip:hover{color:#e4e7ee;border-color:#3a557d;}
+.conv-chip.active{background:rgba(232,160,32,.14);color:#e8a020;border-color:#e8a020;}
+.conv-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.conv-item{padding:12px 14px;border-bottom:1px solid #1a2535;cursor:pointer;display:flex;flex-direction:column;gap:4px;transition:background .12s;position:relative;}
+.conv-item:hover{background:#0f1923;}
+.conv-item.active{background:rgba(232,160,32,.08);border-left:3px solid #e8a020;padding-left:11px;}
+.conv-row1{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.conv-phone{font-size:13px;color:#e4e7ee;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;}
+.conv-time{font-size:10.5px;color:#7a8fa6;flex-shrink:0;white-space:nowrap;}
+.conv-row2{display:flex;align-items:center;gap:8px;justify-content:space-between;}
+.conv-preview{font-size:12px;color:#7a8fa6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+.conv-badges{display:flex;gap:5px;flex-shrink:0;align-items:center;}
+.channel-badge{font-size:9.5px;padding:2px 7px;border-radius:9px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;display:inline-flex;align-items:center;gap:3px;}
+.channel-badge.sms{background:rgba(0,122,255,.18);color:#4ea3ff;}
+.channel-badge.whatsapp{background:rgba(37,211,102,.18);color:#5ad982;}
+.channel-badge.web{background:rgba(232,160,32,.18);color:#e8a020;}
+.lead-badge{font-size:9.5px;padding:2px 7px;border-radius:9px;font-weight:500;background:rgba(34,197,94,.16);color:#5cd17c;text-transform:uppercase;letter-spacing:.4px;}
+.conv-right{display:flex;flex-direction:column;min-width:0;min-height:0;background:#0a1118;}
+.conv-thread-header{padding:14px 18px;border-bottom:1px solid #1a2535;display:flex;align-items:center;gap:12px;flex-shrink:0;background:#0f1923;}
+.conv-avatar{width:38px;height:38px;border-radius:50%;background:#1e3a5f;color:#e4e7ee;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0;}
+.conv-header-info{flex:1;min-width:0;}
+.conv-header-phone{font-size:14px;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-header-meta{font-size:11px;color:#7a8fa6;margin-top:2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.conv-thread{flex:1;overflow-y:auto;padding:18px 18px 8px;display:flex;flex-direction:column;gap:8px;background:#0a1118;}
+.conv-day{align-self:center;font-size:10.5px;color:#7a8fa6;margin:8px 0;padding:3px 10px;background:#0f1923;border-radius:10px;border:1px solid #1a2535;}
+.conv-bubble{max-width:74%;padding:9px 13px;border-radius:16px;font-size:13.5px;line-height:1.42;word-wrap:break-word;white-space:pre-wrap;position:relative;}
+.conv-bubble.customer{background:#007AFF;color:#fff;align-self:flex-end;border-bottom-right-radius:5px;}
+.conv-bubble.ai{background:#1a2535;color:#e4e7ee;align-self:flex-start;border-bottom-left-radius:5px;border:1px solid #243450;}
+.conv-bubble-time{font-size:10px;opacity:.6;margin-top:3px;display:block;}
+.conv-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#7a8fa6;font-size:13px;gap:8px;text-align:center;padding:30px;}
+.conv-empty-icon{font-size:42px;opacity:.4;}
+.conv-list-empty{padding:30px 16px;text-align:center;color:#7a8fa6;font-size:12.5px;}
+.conv-loading{padding:20px;text-align:center;color:#7a8fa6;font-size:12px;}
+.conv-realtime{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:#22c55e;}
+.conv-realtime-dot{width:6px;height:6px;background:#22c55e;border-radius:50%;box-shadow:0 0 0 3px rgba(34,197,94,.2);}
+.conv-realtime.off{color:#7a8fa6;}
+.conv-realtime.off .conv-realtime-dot{background:#7a8fa6;box-shadow:none;}
+.conv-setup{padding:30px 24px;text-align:center;color:#7a8fa6;font-size:13px;line-height:1.6;}
+.conv-setup strong{color:#e4e7ee;}
+.conv-setup a{color:#e8a020;cursor:pointer;text-decoration:underline;}
+@media (max-width:880px){
+  .conv-wrap{grid-template-columns:1fr;height:calc(100vh - 150px);}
+  .conv-left{display:flex;}
+  .conv-right{display:none;}
+  .conv-wrap.show-thread .conv-left{display:none;}
+  .conv-wrap.show-thread .conv-right{display:flex;}
+  .conv-back-btn{display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:#e8a020;font-size:14px;cursor:pointer;padding:0;margin-right:6px;font-family:'DM Sans',sans-serif;}
+}
+.conv-back-btn{display:none;background:none;border:none;color:#e8a020;font-size:18px;cursor:pointer;padding:0 4px 0 0;font-family:'DM Sans',sans-serif;}
+@media (max-width:880px){.conv-back-btn{display:inline-block;}}
 
 /* WhatsApp / SMS Demo */
 .wa-demo-wrap{max-width:1000px;}
@@ -506,6 +565,9 @@ body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-star
       <button class="sb-item active" data-page="leads" onclick="switchPage('leads')">
         <span class="sb-icon">👥</span><span class="sb-label">Leads</span>
       </button>
+      <button class="sb-item" data-page="conversations" onclick="switchPage('conversations')">
+        <span class="sb-icon">💬</span><span class="sb-label">Conversations</span>
+      </button>
       <button class="sb-item" data-page="inventory" onclick="switchPage('inventory')">
         <span class="sb-icon">🚗</span><span class="sb-label">Inventory</span>
       </button>
@@ -549,6 +611,15 @@ body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-star
         </div>
         <div id="leadsTable"></div>
       </div>
+    </section>
+
+    <section class="page" id="page-conversations">
+      <h1 class="page-title">Conversations</h1>
+      <div class="page-sub">
+        Live customer conversations across SMS, WhatsApp, and Web.
+        <span class="conv-realtime off" id="convRealtime" style="margin-left:10px;"><span class="conv-realtime-dot"></span><span id="convRealtimeText">Connecting…</span></span>
+      </div>
+      <div id="convContent"></div>
     </section>
 
     <section class="page" id="page-inventory">
@@ -685,6 +756,25 @@ body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-star
         <div class="btn-row">
           <button class="btn" onclick="saveApiKey()">Save API key</button>
           <button class="btn btn-ghost" onclick="clearApiKey()">Clear API key</button>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Supabase (Conversations)</div>
+        <div class="field">
+          <label>Supabase URL</label>
+          <input id="setSupabaseUrl" type="text" placeholder="https://xxxx.supabase.co" autocomplete="off"/>
+          <div class="field-hint">Project URL from Supabase → Settings → API.</div>
+        </div>
+        <div class="field">
+          <label>Anon (public) key</label>
+          <input id="setSupabaseKey" type="password" placeholder="eyJhbGci..." autocomplete="off"/>
+          <div class="field-hint">Public anon key. Stored locally in your browser — never the service-role key.</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="saveSupabaseConfig()">Save Supabase config</button>
+          <button class="btn btn-ghost" onclick="clearSupabaseConfig()">Clear</button>
+          <button class="btn btn-ghost" onclick="testSupabaseConfig()">Test connection</button>
         </div>
       </div>
     </section>
@@ -1199,10 +1289,12 @@ function renderCurrentPage(){
   if(!active)return;
   const id=active.id;
   if(id==='page-leads')renderLeads();
+  else if(id==='page-conversations')openConversationsPage();
   else if(id==='page-inventory')renderInventory();
   else if(id==='page-analytics')renderAnalytics();
   else if(id==='page-settings')renderSettings();
   else if(id==='page-whatsapp')renderWaSim();
+  if(id!=='page-conversations')teardownConversationsRealtime();
 }
 
 // ============================================================
@@ -1554,6 +1646,8 @@ function renderSettings(){
   $("setBrandColor").value=s.brandColor||'#e8a020';
   $("setLogoUrl").value=s.logoUrl||'';
   $("setApiKey").value=s.apiKey||'';
+  if($("setSupabaseUrl")) $("setSupabaseUrl").value=s.supabaseUrl||'';
+  if($("setSupabaseKey")) $("setSupabaseKey").value=s.supabaseKey||'';
   updateMiniPreview(s);
 }
 
@@ -1900,6 +1994,419 @@ function toggleWaFullscreen(){
   const on = document.body.classList.toggle('wa-fullscreen');
   const btn=$("waFsBtn");
   if(btn) btn.textContent = on ? '× Exit pitch mode' : '⛶ Pitch mode';
+}
+
+// ============================================================
+// SUPABASE CONFIG (stored in localStorage, used by Conversations)
+// ============================================================
+function saveSupabaseConfig(){
+  const url=$("setSupabaseUrl").value.trim();
+  const key=$("setSupabaseKey").value.trim();
+  const current=getSettings();
+  setSettings({...current,supabaseUrl:url,supabaseKey:key});
+  resetSupabaseClient();
+  toast(url&&key?'Supabase config saved':'Supabase config cleared','success');
+}
+
+function clearSupabaseConfig(){
+  if(!confirm('Clear the saved Supabase URL and anon key?'))return;
+  $("setSupabaseUrl").value='';
+  $("setSupabaseKey").value='';
+  saveSupabaseConfig();
+}
+
+async function testSupabaseConfig(){
+  const url=$("setSupabaseUrl").value.trim();
+  const key=$("setSupabaseKey").value.trim();
+  if(!url||!key){toast('Enter both URL and anon key','error');return;}
+  if(!window.supabase||!window.supabase.createClient){toast('Supabase library not loaded','error');return;}
+  try{
+    const client=window.supabase.createClient(url,key);
+    const {error}=await client.from('conversations').select('id',{count:'exact',head:true}).limit(1);
+    if(error)throw error;
+    toast('Connected to Supabase ✓','success');
+  }catch(err){
+    toast('Connection failed: '+(err.message||err),'error');
+  }
+}
+
+let _sbClient=null;
+function getSupabaseClient(){
+  const s=getSettings();
+  if(!s.supabaseUrl||!s.supabaseKey)return null;
+  if(!window.supabase||!window.supabase.createClient)return null;
+  if(_sbClient&&_sbClient.__url===s.supabaseUrl&&_sbClient.__key===s.supabaseKey)return _sbClient;
+  _sbClient=window.supabase.createClient(s.supabaseUrl,s.supabaseKey);
+  _sbClient.__url=s.supabaseUrl;
+  _sbClient.__key=s.supabaseKey;
+  return _sbClient;
+}
+function resetSupabaseClient(){
+  teardownConversationsRealtime();
+  _sbClient=null;
+  if(document.querySelector('.page.active')?.id==='page-conversations')openConversationsPage();
+}
+
+// ============================================================
+// CONVERSATIONS PAGE
+// ============================================================
+let convState={
+  conversations:[],
+  leadsByConversation:{},
+  selectedId:null,
+  search:'',
+  channel:'all',
+  messages:{},
+  loadingThread:false,
+  channels:{conv:null,msg:null}
+};
+
+function openConversationsPage(){
+  const client=getSupabaseClient();
+  const root=$("convContent");
+  if(!client){
+    setConvRealtimeStatus(false,'Supabase not configured');
+    root.innerHTML=`
+      <div class="dash-card">
+        <div class="conv-setup">
+          <div style="font-size:34px;margin-bottom:10px;">🔌</div>
+          <strong>Connect Supabase to load conversations.</strong><br>
+          Add your Supabase URL and anon key in
+          <a onclick="switchPage('settings')">Settings → Supabase</a>.
+        </div>
+      </div>`;
+    return;
+  }
+  renderConvShell();
+  loadConversations();
+  setupConversationsRealtime();
+}
+
+function renderConvShell(){
+  const root=$("convContent");
+  if(root.querySelector('.conv-wrap'))return;
+  root.innerHTML=`
+    <div class="conv-wrap" id="convWrap">
+      <div class="conv-left">
+        <div class="conv-toolbar">
+          <input class="search-input" id="convSearch" placeholder="Search by phone or message…" oninput="onConvSearch()"/>
+          <div class="conv-filters" id="convFilters">
+            <button class="conv-chip active" data-channel="all" onclick="setConvChannel('all')">All</button>
+            <button class="conv-chip" data-channel="sms" onclick="setConvChannel('sms')">SMS</button>
+            <button class="conv-chip" data-channel="whatsapp" onclick="setConvChannel('whatsapp')">WhatsApp</button>
+            <button class="conv-chip" data-channel="web" onclick="setConvChannel('web')">Web</button>
+          </div>
+        </div>
+        <div class="conv-list" id="convList"><div class="conv-loading">Loading conversations…</div></div>
+      </div>
+      <div class="conv-right" id="convRight">
+        <div class="conv-empty">
+          <div class="conv-empty-icon">💬</div>
+          <div>Select a conversation to view the message thread.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function loadConversations(){
+  const client=getSupabaseClient();
+  if(!client)return;
+  try{
+    const {data,error}=await client
+      .from('conversations')
+      .select('id,customer_phone,channel,organization_id,created_at,last_message_at')
+      .order('last_message_at',{ascending:false,nullsFirst:false})
+      .limit(200);
+    if(error)throw error;
+    convState.conversations=data||[];
+    await loadLeadsForConversations();
+    await loadLastMessagePreviews();
+    renderConvList();
+  }catch(err){
+    $("convList").innerHTML=`<div class="conv-list-empty">Failed to load conversations: ${esc(err.message||err)}</div>`;
+  }
+}
+
+async function loadLeadsForConversations(){
+  const client=getSupabaseClient();
+  const ids=convState.conversations.map(c=>c.id);
+  if(!ids.length){convState.leadsByConversation={};return;}
+  try{
+    const {data,error}=await client
+      .from('leads')
+      .select('id,conversation_id,name,phone,email,vehicle_interest,status,created_at')
+      .in('conversation_id',ids);
+    if(error)throw error;
+    const map={};
+    (data||[]).forEach(l=>{if(l.conversation_id)map[l.conversation_id]=l;});
+    convState.leadsByConversation=map;
+  }catch(err){
+    convState.leadsByConversation={};
+  }
+}
+
+async function loadLastMessagePreviews(){
+  const client=getSupabaseClient();
+  const ids=convState.conversations.map(c=>c.id);
+  if(!ids.length)return;
+  try{
+    const {data,error}=await client
+      .from('messages')
+      .select('conversation_id,role,content,created_at')
+      .in('conversation_id',ids)
+      .order('created_at',{ascending:false})
+      .limit(500);
+    if(error)throw error;
+    const previews={};
+    (data||[]).forEach(m=>{
+      if(!previews[m.conversation_id])previews[m.conversation_id]=m;
+    });
+    convState.conversations.forEach(c=>{
+      const p=previews[c.id];
+      c._preview=p?p.content:'';
+      c._previewRole=p?p.role:null;
+    });
+  }catch(err){/* ignore preview failures */}
+}
+
+function renderConvList(){
+  const list=$("convList");
+  if(!list)return;
+  const q=convState.search.toLowerCase().trim();
+  const ch=convState.channel;
+  let items=convState.conversations.slice();
+  if(ch!=='all')items=items.filter(c=>(c.channel||'').toLowerCase()===ch);
+  if(q){
+    items=items.filter(c=>{
+      if((c.customer_phone||'').toLowerCase().includes(q))return true;
+      if((c._preview||'').toLowerCase().includes(q))return true;
+      const lead=convState.leadsByConversation[c.id];
+      if(lead){
+        if((lead.name||'').toLowerCase().includes(q))return true;
+        if((lead.email||'').toLowerCase().includes(q))return true;
+      }
+      return false;
+    });
+  }
+  if(!items.length){
+    list.innerHTML=`<div class="conv-list-empty">${convState.conversations.length?'No conversations match your filters.':'No conversations yet.'}</div>`;
+    return;
+  }
+  list.innerHTML=items.map(c=>{
+    const channel=(c.channel||'web').toLowerCase();
+    const lead=convState.leadsByConversation[c.id];
+    const preview=c._preview||'(no messages yet)';
+    const previewPrefix=c._previewRole==='ai'?'AI: ':(c._previewRole==='customer'?'': '');
+    const time=timeAgo(c.last_message_at||c.created_at);
+    const active=c.id===convState.selectedId?' active':'';
+    return `<div class="conv-item${active}" onclick="selectConversation('${esc(c.id)}')">
+      <div class="conv-row1">
+        <div class="conv-phone">${esc(c.customer_phone||'Unknown')}</div>
+        <div class="conv-time">${esc(time)}</div>
+      </div>
+      <div class="conv-row2">
+        <div class="conv-preview">${esc(previewPrefix+truncate(preview,80))}</div>
+        <div class="conv-badges">
+          ${lead?'<span class="lead-badge">Lead</span>':''}
+          <span class="channel-badge ${esc(channel)}">${esc(channelLabel(channel))}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function channelLabel(ch){
+  if(ch==='sms')return 'SMS';
+  if(ch==='whatsapp')return 'WhatsApp';
+  if(ch==='web')return 'Web';
+  return ch||'Web';
+}
+
+function onConvSearch(){
+  convState.search=$("convSearch").value;
+  renderConvList();
+}
+
+function setConvChannel(ch){
+  convState.channel=ch;
+  document.querySelectorAll('#convFilters .conv-chip').forEach(b=>b.classList.toggle('active',b.dataset.channel===ch));
+  renderConvList();
+}
+
+async function selectConversation(id){
+  convState.selectedId=id;
+  const wrap=$("convWrap");
+  if(wrap)wrap.classList.add('show-thread');
+  renderConvList();
+  await loadMessages(id);
+  renderThread(id);
+}
+
+async function loadMessages(conversationId){
+  const client=getSupabaseClient();
+  if(!client)return;
+  convState.loadingThread=true;
+  renderThread(conversationId);
+  try{
+    const {data,error}=await client
+      .from('messages')
+      .select('id,conversation_id,role,content,created_at')
+      .eq('conversation_id',conversationId)
+      .order('created_at',{ascending:true})
+      .limit(500);
+    if(error)throw error;
+    convState.messages[conversationId]=data||[];
+  }catch(err){
+    convState.messages[conversationId]=[];
+    toast('Failed to load messages: '+(err.message||err),'error');
+  }
+  convState.loadingThread=false;
+}
+
+function renderThread(id){
+  const right=$("convRight");
+  if(!right)return;
+  const conv=convState.conversations.find(c=>c.id===id);
+  if(!conv){
+    right.innerHTML=`<div class="conv-empty"><div class="conv-empty-icon">💬</div><div>Select a conversation to view the message thread.</div></div>`;
+    return;
+  }
+  const lead=convState.leadsByConversation[id];
+  const channel=(conv.channel||'web').toLowerCase();
+  const initial=(conv.customer_phone||'?').replace(/\D/g,'').slice(-2)||'?';
+  const msgs=convState.messages[id]||[];
+  let bodyHtml='';
+  if(convState.loadingThread && !msgs.length){
+    bodyHtml=`<div class="conv-loading">Loading thread…</div>`;
+  }else if(!msgs.length){
+    bodyHtml=`<div class="conv-empty"><div class="conv-empty-icon">📭</div><div>No messages in this conversation yet.</div></div>`;
+  }else{
+    let lastDay='';
+    bodyHtml=msgs.map(m=>{
+      const day=formatConvDay(m.created_at);
+      let sep='';
+      if(day!==lastDay){sep=`<div class="conv-day">${esc(day)}</div>`;lastDay=day;}
+      const role=m.role==='customer'?'customer':'ai';
+      return `${sep}<div class="conv-bubble ${role}">${esc(m.content||'')}<span class="conv-bubble-time">${esc(formatConvTime(m.created_at))}</span></div>`;
+    }).join('');
+  }
+  right.innerHTML=`
+    <div class="conv-thread-header">
+      <button class="conv-back-btn" onclick="closeConvThread()">← Back</button>
+      <div class="conv-avatar">${esc(initial)}</div>
+      <div class="conv-header-info">
+        <div class="conv-header-phone">${esc(conv.customer_phone||'Unknown')}</div>
+        <div class="conv-header-meta">
+          <span class="channel-badge ${esc(channel)}">${esc(channelLabel(channel))}</span>
+          ${lead?`<span class="lead-badge">Lead captured</span>`:''}
+          ${lead&&lead.name?`<span style="color:#e4e7ee;">${esc(lead.name)}</span>`:''}
+          ${lead&&lead.vehicle_interest?`<span>· ${esc(lead.vehicle_interest)}</span>`:''}
+          <span>· Started ${esc(formatConvDay(conv.created_at))}</span>
+        </div>
+      </div>
+    </div>
+    <div class="conv-thread" id="convThread">${bodyHtml}</div>`;
+  const thread=$("convThread");
+  if(thread)thread.scrollTop=thread.scrollHeight;
+}
+
+function closeConvThread(){
+  const wrap=$("convWrap");
+  if(wrap)wrap.classList.remove('show-thread');
+}
+
+function setupConversationsRealtime(){
+  const client=getSupabaseClient();
+  if(!client||!client.channel)return;
+  teardownConversationsRealtime();
+  try{
+    const msgCh=client
+      .channel('autoadvisor-messages')
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},payload=>handleRealtimeMessage(payload.new))
+      .subscribe(status=>{
+        if(status==='SUBSCRIBED')setConvRealtimeStatus(true,'Live');
+        else if(status==='CHANNEL_ERROR'||status==='CLOSED')setConvRealtimeStatus(false,'Offline');
+      });
+    const convCh=client
+      .channel('autoadvisor-conversations')
+      .on('postgres_changes',{event:'*',schema:'public',table:'conversations'},()=>loadConversations())
+      .on('postgres_changes',{event:'*',schema:'public',table:'leads'},()=>loadLeadsForConversations().then(renderConvList))
+      .subscribe();
+    convState.channels.msg=msgCh;
+    convState.channels.conv=convCh;
+  }catch(err){
+    setConvRealtimeStatus(false,'Realtime unavailable');
+  }
+}
+
+function teardownConversationsRealtime(){
+  const client=getSupabaseClient();
+  if(!client){convState.channels={conv:null,msg:null};setConvRealtimeStatus(false,'Offline');return;}
+  ['conv','msg'].forEach(k=>{
+    const ch=convState.channels[k];
+    if(ch){try{client.removeChannel(ch);}catch(e){}}
+    convState.channels[k]=null;
+  });
+  setConvRealtimeStatus(false,'Offline');
+}
+
+function setConvRealtimeStatus(on,text){
+  const el=$("convRealtime");
+  if(!el)return;
+  el.classList.toggle('off',!on);
+  const t=$("convRealtimeText");
+  if(t)t.textContent=text;
+}
+
+function handleRealtimeMessage(msg){
+  if(!msg||!msg.conversation_id)return;
+  if(convState.messages[msg.conversation_id]){
+    const list=convState.messages[msg.conversation_id];
+    if(!list.find(m=>m.id===msg.id))list.push(msg);
+  }
+  const conv=convState.conversations.find(c=>c.id===msg.conversation_id);
+  if(conv){
+    conv._preview=msg.content||'';
+    conv._previewRole=msg.role;
+    conv.last_message_at=msg.created_at||new Date().toISOString();
+    convState.conversations.sort((a,b)=>new Date(b.last_message_at||0)-new Date(a.last_message_at||0));
+  }else{
+    loadConversations();
+    return;
+  }
+  renderConvList();
+  if(convState.selectedId===msg.conversation_id)renderThread(msg.conversation_id);
+}
+
+function timeAgo(iso){
+  if(!iso)return '—';
+  const d=new Date(iso);
+  const diff=(Date.now()-d.getTime())/1000;
+  if(diff<60)return 'just now';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  if(diff<604800)return Math.floor(diff/86400)+'d ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function formatConvDay(iso){
+  if(!iso)return '';
+  const d=new Date(iso);
+  const now=new Date();
+  if(d.toDateString()===now.toDateString())return 'Today';
+  const y=new Date(now);y.setDate(y.getDate()-1);
+  if(d.toDateString()===y.toDateString())return 'Yesterday';
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:d.getFullYear()===now.getFullYear()?undefined:'numeric'});
+}
+
+function formatConvTime(iso){
+  if(!iso)return '';
+  return new Date(iso).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
+function truncate(s,n){
+  s=(s||'').toString().replace(/\s+/g,' ').trim();
+  return s.length>n?s.slice(0,n-1)+'…':s;
 }
 
 // ============================================================
