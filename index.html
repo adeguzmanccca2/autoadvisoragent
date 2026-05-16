@@ -382,6 +382,33 @@ body.wa-fullscreen #page-whatsapp .wa-pane{align-items:center;}
 .filter-select{background:#0a1118;border:1px solid #2a4060;border-radius:8px;padding:8px 12px;font-size:13px;color:#e4e7ee;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
 .filter-select:focus{border-color:#e8a020;}
 
+/* Login screen */
+.login-overlay{display:none;position:fixed;inset:0;background:#0a1118;z-index:1800;align-items:center;justify-content:center;padding:20px;}
+body.login-mode .login-overlay{display:flex;}
+body.login-mode .app,body.login-mode #dashView,body.login-mode .mode-toggle{display:none!important;}
+body.login-mode{background:#0a1118;align-items:stretch;justify-content:flex-start;padding:0;min-height:100vh;}
+.login-card{background:#0f1923;border:1px solid #1a2535;border-radius:14px;padding:30px 28px 26px;width:100%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #1a2535;}
+.login-logo-icon{width:46px;height:46px;background:#e8a020;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;color:#0f1923;flex-shrink:0;overflow:hidden;}
+.login-logo-icon img{width:100%;height:100%;object-fit:cover;}
+.login-brand{min-width:0;}
+.login-title{font-size:16px;color:#fff;font-weight:500;line-height:1.2;}
+.login-sub{font-size:11.5px;color:#7a8fa6;margin-top:3px;}
+.login-form{display:flex;flex-direction:column;gap:14px;}
+.login-form .field{margin-bottom:0;}
+.login-form input[type=password]{width:100%;background:#0a1118;border:1px solid #2a4060;border-radius:8px;padding:10px 12px;font-size:13.5px;color:#e4e7ee;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;letter-spacing:1px;}
+.login-form input[type=password]:focus{border-color:#e8a020;}
+.login-err{color:#f87171;font-size:12px;margin-top:8px;display:none;line-height:1.4;}
+.login-err.show{display:block;}
+.login-btn{padding:11px;font-size:14px;width:100%;border-radius:8px;}
+.login-back{padding:9px;font-size:12px;width:100%;border-radius:8px;background:transparent;color:#7a8fa6;border:1px solid #2a4060;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.login-back:hover{color:#e8a020;border-color:#e8a020;}
+
+/* Sidebar footer + logout */
+.sb-footer{margin-top:auto;padding:10px 10px 0;border-top:1px solid #1a2535;}
+.sb-item.sb-logout{color:#7a8fa6;}
+.sb-item.sb-logout:hover{background:rgba(220,38,38,.12);color:#f87171;}
+
 /* Mobile */
 @media (max-width:760px){
   body{padding:10px;}
@@ -402,6 +429,27 @@ body.wa-fullscreen #page-whatsapp .wa-pane{align-items:center;}
 </style>
 </head>
 <body>
+
+<div class="login-overlay" id="loginView">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon" id="loginLogo">A</div>
+      <div class="login-brand">
+        <div class="login-title" id="loginTitle">AutoAdvisor AI</div>
+        <div class="login-sub">Dealer dashboard sign in</div>
+      </div>
+    </div>
+    <form class="login-form" onsubmit="event.preventDefault();attemptLogin();">
+      <div class="field">
+        <label>Password</label>
+        <input id="loginPw" type="password" placeholder="Enter password" autocomplete="current-password"/>
+        <div class="login-err" id="loginErr">Incorrect password. Please try again.</div>
+      </div>
+      <button type="submit" class="btn login-btn">Sign in</button>
+      <button type="button" class="login-back" onclick="returnToChat()">← Back to chat</button>
+    </form>
+  </div>
+</div>
 
 <button class="mode-toggle" id="modeToggle" onclick="toggleMode()">
   <span id="modeIcon">⊞</span><span id="modeText">Dealer Dashboard</span>
@@ -471,6 +519,11 @@ body.wa-fullscreen #page-whatsapp .wa-pane{align-items:center;}
         <span class="sb-icon">⚙</span><span class="sb-label">Settings</span>
       </button>
     </nav>
+    <div class="sb-footer">
+      <button class="sb-item sb-logout" onclick="logout()">
+        <span class="sb-icon">⎋</span><span class="sb-label">Logout</span>
+      </button>
+    </div>
   </aside>
 
   <main class="main-content">
@@ -1070,15 +1123,69 @@ function trackQuestion(text){
 // MODE TOGGLE & NAVIGATION
 // ============================================================
 function toggleMode(){
-  const dashOn=document.body.classList.toggle('dash-mode');
-  if(dashOn){
-    $("modeText").textContent='Back to chat';
-    $("modeIcon").textContent='💬';
-    renderCurrentPage();
-  }else{
+  if(document.body.classList.contains('dash-mode')){
+    document.body.classList.remove('dash-mode');
     $("modeText").textContent='Dealer Dashboard';
     $("modeIcon").textContent='⊞';
+    return;
   }
+  if(!isAuthed()){
+    showLogin();
+    return;
+  }
+  enterDashboard();
+}
+
+function enterDashboard(){
+  document.body.classList.remove('login-mode');
+  document.body.classList.add('dash-mode');
+  $("modeText").textContent='Back to chat';
+  $("modeIcon").textContent='💬';
+  renderCurrentPage();
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+const AUTH_PW='Abby2026!x';
+const AUTH_KEY='autoadvisor_auth';
+
+function isAuthed(){
+  try{return sessionStorage.getItem(AUTH_KEY)==='true';}catch(e){return false;}
+}
+
+function showLogin(){
+  document.body.classList.remove('dash-mode');
+  document.body.classList.add('login-mode');
+  const err=$("loginErr");if(err)err.classList.remove('show');
+  const pw=$("loginPw");if(pw){pw.value='';setTimeout(()=>pw.focus(),60);}
+}
+
+function attemptLogin(){
+  const pw=$("loginPw")?.value||'';
+  if(pw===AUTH_PW){
+    try{sessionStorage.setItem(AUTH_KEY,'true');}catch(e){}
+    const err=$("loginErr");if(err)err.classList.remove('show');
+    enterDashboard();
+    toast('Signed in','success');
+  }else{
+    const err=$("loginErr");if(err)err.classList.add('show');
+    const inp=$("loginPw");if(inp){inp.value='';inp.focus();}
+  }
+}
+
+function returnToChat(){
+  document.body.classList.remove('login-mode');
+  const err=$("loginErr");if(err)err.classList.remove('show');
+}
+
+function logout(){
+  try{sessionStorage.removeItem(AUTH_KEY);}catch(e){}
+  document.body.classList.remove('dash-mode');
+  $("modeText").textContent='Dealer Dashboard';
+  $("modeIcon").textContent='⊞';
+  showLogin();
+  toast('Logged out','success');
 }
 
 function switchPage(page){
@@ -1532,8 +1639,9 @@ function applySettings(s){
   document.title=(s.dealerName||'AutoAdvisor AI')+' — Dealer Demo';
   $("chatTitle").textContent=s.dealerName||'AutoAdvisor AI';
   $("dashTitle").textContent=s.dealerName||'AutoAdvisor AI';
+  const loginTitleEl=$("loginTitle");if(loginTitleEl)loginTitleEl.textContent=s.dealerName||'AutoAdvisor AI';
   const initial=(s.dealerName||'A').charAt(0).toUpperCase();
-  ['chatLogo','dashLogo'].forEach(id=>{
+  ['chatLogo','dashLogo','loginLogo'].forEach(id=>{
     const el=$(id);
     if(!el)return;
     if(s.logoUrl){
